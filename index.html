@@ -92,7 +92,7 @@
   /* Right column (shop & upgrades) */
   .shop-list{display:flex;flex-direction:column;gap:10px}
   .item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
-  .item .icon{width:48px;height:48;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .item .icon{width:48px;height:48px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700}
   .item .meta{flex:1}
   .item .price{font-weight:800}
 
@@ -115,18 +115,18 @@
   .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8}
 
   /* custom cursor element */
-  .cursor{
-    .cursor {
+  .cursor {
   position:fixed;
   pointer-events: none;
-  z-index:99999;transform:translate(-50%,-50%) scale(1);
-    transition:transform 120ms ease, opacity 180ms ease;
-    will-change:transform,opacity;
-    font-size:26px;
-    text-shadow:0 6px 18px rgba(0,0,0,0.45);
-  }
-  .cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
-  .cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
+  z-index:99999;
+  transform:translate(-50%,-50%) scale(1);
+  transition:transform 120ms ease, opacity 180ms ease;
+  will-change:transform,opacity;
+  font-size:26px;
+  text-shadow:0 6px 18px rgba(0,0,0,0.45);
+}
+.cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
+.cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
 
   /* responsive */
   @media (max-width:1020px){
