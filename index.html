@@ -333,15 +333,33 @@ function renderAll(){
   renderAvatars();
 }
 
-function renderShop(){
-  const shop = $('shop'); shop.innerHTML = '';
-  shopItems.forEach(item=>{
-    const div = document.createElement('div'); div.className='item';
-    div.innerHTML = `<div class="icon">${item.title.slice(0,2)}</div>
-      <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
-      <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn" data-id="${item.id}">Buy</button></div></div>`;
-    shop.appendChild(div);
-    div.querySelector('button').onclick = ()=>buyItem(item.id);
+function renderShop() {
+  const shopContainer = document.getElementById("shop");
+  shopContainer.innerHTML = "";
+  
+  shopItems.forEach((item, index) => {
+    const button = document.createElement("button");
+    button.textContent = `${item.name} - ${item.cost} NP`;
+    
+    // Disable if already owned or not enough NP
+    if (item.owned) {
+      button.disabled = true;
+      button.textContent = `${item.name} (Owned)`;
+    } else if (nursePoints < item.cost) {
+      button.disabled = true;
+    }
+    
+    // ✅ Buy function
+    button.onclick = () => {
+      if (nursePoints >= item.cost && !item.owned) {
+        nursePoints -= item.cost;
+        item.owned = true;
+        updatePoints();
+        renderShop(); // Refresh UI after purchase
+      }
+    };
+    
+    shopContainer.appendChild(button);
   });
 }
 
@@ -382,6 +400,37 @@ function renderAvatars(){
         else showToast('Not enough NP');
       } else { state.activeAvatar = a.id; saveState(); renderAll(); showToast(`${a.label} equipped`) }
     };
+  });
+}
+function renderQuests() {
+  const questContainer = document.getElementById("quests");
+  questContainer.innerHTML = "";
+  
+  quests.forEach((quest, index) => {
+    const questDiv = document.createElement("div");
+    questDiv.textContent = `${quest.name} - ${quest.progress}/${quest.goal}`;
+    
+    const completeBtn = document.createElement("button");
+    completeBtn.textContent = "Complete";
+    
+    if (quest.progress >= quest.goal && !quest.completed) {
+      completeBtn.disabled = false;
+      completeBtn.classList.add("active-btn"); // Highlight
+    } else {
+      completeBtn.disabled = true;
+    }
+    
+    completeBtn.onclick = () => {
+      if (quest.progress >= quest.goal && !quest.completed) {
+        nursePoints += quest.reward;
+        quest.completed = true;
+        updatePoints();
+        renderQuests();
+      }
+    };
+    
+    questDiv.appendChild(completeBtn);
+    questContainer.appendChild(questDiv);
   });
 }
 
