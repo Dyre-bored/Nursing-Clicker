@@ -116,7 +116,10 @@
 
   /* custom cursor element */
   .cursor{
-    position:fixed;pointer-events:none;z-index:99999;transform:translate(-50%,-50%) scale(1);
+    .cursor {
+  position:fixed;
+  pointer-events: none;
+  z-index:99999;transform:translate(-50%,-50%) scale(1);
     transition:transform 120ms ease, opacity 180ms ease;
     will-change:transform,opacity;
     font-size:26px;
@@ -244,7 +247,7 @@
 </div>
 
 <!-- custom cursor element -->
-<div id="cursor" class="cursor">🩺</div>
+<div id="cursor" class="cursor" style="pointer-events:none;">🩺</div>
 
 <script>
 /* ========== GAME STATE & DEFAULTS ========== */
