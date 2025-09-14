@@ -1,117 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Fixed NP Clicker Game</title>
-<style>
-  :root {
-    --g1: #4caf50; /* green */
-    --g2: #388e3c;
-  }
-  body {
-    background: #222;
-    color: #ddd;
-    font-family: Arial, sans-serif;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nursing Clicker Game - Stylish</title>
+  <style>
+    :root {
+      --g1: #4caf50; /* green */
+      --g2: #388e3c;
+      --bg: #121212;
+      --bg-alt: #1e1e1e;
+      --text: #ddd;
+      --accent: #81c784;
+      --shadow: rgba(0, 0, 0, 0.6);
+      --btn-hover-bg: #2e7d32;
+    }
 
-  /* Custom Cursor */
-  .cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 9999;
-    font-size: 2rem;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease;
-  }
-  /* Hide cursor on interactive elements */
-  .cursor.hide-cursor {
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
 
-  /* Quest Complete Button Styles */
-  .btn {
-    background: var(--g1);
-    border: none;
-    border-radius: 5px;
-    padding: 8px 16px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    user-select: none;
-  }
-  .btn:hover:not(:disabled) {
-    background: var(--g2);
-  }
-  .btn:disabled {
-    cursor: not-allowed;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
 
-  /* Active/Inactive for complete quest */
-  .btn.inactive {
-    background: rgba(255,255,255,0.04) !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
-    opacity: 0.6;
-  }
-  .btn.active {
-    background: var(--g1) !important;
-    cursor: pointer !important;
-    pointer-events: auto !important;
-    opacity: 1;
-  }
+    #gameContainer {
+      max-width: 500px;
+      width: 100%;
+      background: var(--bg-alt);
+      border-radius: 12px;
+      box-shadow: 0 0 15px var(--shadow);
+      padding: 20px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
 
-  /* Shop lists styling */
-  #shopList, #skinList, #avatarList {
-    margin: 10px 0;
-  }
-  #shopList button, #skinList button, #avatarList button {
-    margin: 4px;
-    padding: 6px 10px;
-    font-size: 1rem;
-  }
-</style>
+    h1, h2 {
+      margin: 0 0 12px 0;
+      font-weight: 700;
+      color: var(--accent);
+      user-select: none;
+      text-align: center;
+      letter-spacing: 1.2px;
+    }
+
+    /* NP Display */
+    #npDisplay {
+      font-size: 1.8rem;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 8px;
+      user-select: none;
+    }
+    #npCount {
+      color: var(--g1);
+    }
+
+    /* Click Area */
+    #clickArea {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(145deg, #333, #222);
+      border-radius: 16px;
+      box-shadow: inset 5px 5px 15px #1a1a1a,
+                  inset -5px -5px 15px #404040;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 3rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      transition: background 0.3s ease;
+      position: relative;
+      text-shadow: 0 0 8px var(--g1);
+    }
+    #clickArea:hover {
+      background: linear-gradient(145deg, #2a7a2a, #206920);
+      box-shadow: inset 5px 5px 20px #165116,
+                  inset -5px -5px 20px #44a744;
+      text-shadow: 0 0 15px var(--g1);
+    }
+    #clickArea:active {
+      background: linear-gradient(145deg, #196619, #154d15);
+      box-shadow: inset 2px 2px 6px #103210,
+                  inset -2px -2px 6px #307730;
+      transform: scale(0.98);
+    }
+
+    /* Sections */
+    .section {
+      background: #222;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #0008 inset;
+      user-select: none;
+    }
+
+    .section h2 {
+      margin-bottom: 12px;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+
+    /* Buttons Grid */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(140px,1fr));
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      background-color: var(--g1);
+      border: none;
+      padding: 10px 0;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(72, 207, 120, 0.6);
+      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+    .btn:hover:not(:disabled) {
+      background-color: var(--btn-hover-bg);
+      box-shadow: 0 6px 10px rgba(72, 207, 120, 0.9);
+    }
+    .btn:disabled, .btn.inactive {
+      cursor: not-allowed;
+      background-color: #555 !important;
+      box-shadow: none !important;
+      color: #aaa !important;
+      opacity: 0.7;
+      pointer-events: none;
+      user-select: none;
+    }
+    .btn.active {
+      background-color: var(--g1);
+      cursor: pointer;
+      pointer-events: auto;
+      opacity: 1;
+      color: #fff;
+      box-shadow: 0 4px 6px rgba(72, 207, 120, 0.8);
+    }
+
+    /* Shop/Skin/Avatar item labels */
+    .btn span.label {
+      display: block;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-align: center;
+      margin-bottom: 3px;
+    }
+    .btn span.price {
+      font-size: 0.85rem;
+      color: #ccffcccc;
+      letter-spacing: 0.01em;
+    }
+
+    /* Quest Section */
+    #questText {
+      font-size: 1.1rem;
+      min-height: 38px;
+      margin-bottom: 8px;
+      text-align: center;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+    #completeQuestBtn {
+      width: 100%;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 12px;
+    }
+
+    /* Custom Cursor */
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 999999;
+      font-size: 2.5rem;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.15s ease, transform 0.1s ease;
+      user-select: none;
+      will-change: transform, opacity;
+      text-shadow: 0 0 6px var(--g1);
+    }
+    .cursor.hide-cursor {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
 </head>
 <body>
+  <div id="gameContainer">
+    <h1>NP Clicker Game</h1>
+    <div id="npDisplay">NP: <span id="npCount">0</span></div>
 
-<div>
-  <h1>NP Clicker Game</h1>
-  <div>NP: <span id="npCount">0</span></div>
-  <div id="clickArea" style="width:200px;height:200px;background:#444; margin:10px auto; text-align:center;line-height:200px; font-size:2rem; color:#fff; cursor:pointer;">
-    Click Me
+    <div id="clickArea" aria-label="Click Area" role="button" tabindex="0" title="Click me!">
+      🐵
+    </div>
+
+    <div class="section" id="shopSection">
+      <h2>Shop</h2>
+      <div id="shopList" class="btn-grid"></div>
+    </div>
+
+    <div class="section" id="skinSection">
+      <h2>Skins</h2>
+      <div id="skinList" class="btn-grid"></div>
+    </div>
+
+    <div class="section" id="avatarSection">
+      <h2>Avatars</h2>
+      <div id="avatarList" class="btn-grid"></div>
+    </div>
+
+    <div class="section" id="questSection">
+      <h2>Quest</h2>
+      <div id="questText">No active quest.</div>
+      <button class="btn inactive" id="completeQuestBtn" disabled>Complete</button>
+    </div>
   </div>
-  
-  <h2>Shop</h2>
-  <div id="shopList"></div>
 
-  <h2>Skins</h2>
-  <div id="skinList"></div>
-
-  <h2>Avatars</h2>
-  <div id="avatarList"></div>
-
-  <h2>Quest</h2>
-  <div id="questText">No active quest.</div>
-  <button class="btn inactive" id="completeQuestBtn" disabled>Complete</button>
-</div>
-
-<!-- Custom Cursor -->
-<div class="cursor" id="cursor">🐵</div>
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor">🐵</div>
 
 <script>
-  // Utility function
-  function $(id) { return document.getElementById(id); }
-
-  // Format numbers with commas, floors any fraction
-  function fmt(n) {
-    return Math.floor(n).toLocaleString();
-  }
-
-  // Time formatting helper
+  // Utility
+  function $(id){return document.getElementById(id);}
+  function fmt(n){return Math.floor(n).toLocaleString();}
   function msToTime(duration) {
     let seconds = Math.floor((duration / 1000) % 60);
     let minutes = Math.floor((duration / (1000 * 60)) % 60);
@@ -131,22 +264,22 @@
     activeSkin: null,
     activeAvatar: null,
     upgrades: [
-      { id: 1, label: 'Double Click NP', price: 100, npPerClick: 2, owned: false },
-      { id: 2, label: 'Auto NP Gain', price: 500, npPerSecond: 1, owned: false }
+      { id:1, label:'Double Click NP', price:100, npPerClick:2 },
+      { id:2, label:'Auto NP Gain', price:500, npPerSecond:1 }
     ],
     skins: [
-      { id: 1, label: 'Classic Monkey', price: 200 },
-      { id: 2, label: 'Golden Monkey', price: 500 }
+      { id:1, label:'Classic Monkey', price:200 },
+      { id:2, label:'Golden Monkey', price:500 }
     ],
     avatars: [
-      { id: 1, label: 'Ninja Monkey', price: 300 },
-      { id: 2, label: 'Pirate Monkey', price: 600 }
+      { id:1, label:'Ninja Monkey', price:300 },
+      { id:2, label:'Pirate Monkey', price:600 }
     ]
   };
 
-  let currentQuest = null; // Quest object
+  let currentQuest = null;
+  let clickValue = 1;
 
-  // Render all UI parts
   function renderAll() {
     renderNP();
     renderShop();
@@ -159,42 +292,50 @@
     $('npCount').textContent = fmt(state.np);
   }
 
+  function createButton(text, price, owned, disabled, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    if(disabled) btn.disabled = true;
+    if(!disabled && owned === false) btn.disabled = false;
+    btn.innerHTML = `<span class="label">${text}</span><span class="price">${fmt(price)} NP</span>`;
+    btn.style.userSelect = "none";
+    if(onClick) btn.addEventListener('click', onClick);
+    return btn;
+  }
+
   function renderShop() {
-    const shopList = $('shopList');
-    shopList.innerHTML = '';
+    const container = $('shopList');
+    container.innerHTML = '';
     state.upgrades.forEach(upg => {
       const owned = state.purchasedUpgrades.includes(upg.id);
-      const btn = document.createElement('button');
-      btn.textContent = `${upg.label}: ${fmt(upg.price)} NP${owned ? ' (Owned)' : ''}`;
-      btn.disabled = owned || state.np < upg.price;
-      btn.addEventListener('click', () => buyItem(upg));
-      shopList.appendChild(btn);
+      const disabled = owned || state.np < upg.price;
+      const btn = createButton(upg.label, upg.price, owned, disabled, () => buyItem(upg));
+      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      container.appendChild(btn);
     });
   }
 
   function renderSkins() {
-    const skinList = $('skinList');
-    skinList.innerHTML = '';
+    const container = $('skinList');
+    container.innerHTML = '';
     state.skins.forEach(skin => {
       const owned = state.purchasedSkins.includes(skin.id);
-      const btn = document.createElement('button');
-      btn.textContent = `${skin.label}: ${fmt(skin.price)} NP${owned ? ' (Owned)' : ''}`;
-      btn.disabled = !owned && state.np < skin.price;
-      btn.addEventListener('click', () => buyOrEquipSkin(skin));
-      skinList.appendChild(btn);
+      const disabled = !owned && state.np < skin.price;
+      const btn = createButton(skin.label, skin.price, owned, disabled, () => buyOrEquipSkin(skin));
+      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      container.appendChild(btn);
     });
   }
 
   function renderAvatars() {
-    const avatarList = $('avatarList');
-    avatarList.innerHTML = '';
+    const container = $('avatarList');
+    container.innerHTML = '';
     state.avatars.forEach(avatar => {
       const owned = state.purchasedAvatars.includes(avatar.id);
-      const btn = document.createElement('button');
-      btn.textContent = `${avatar.label}: ${fmt(avatar.price)} NP${owned ? ' (Owned)' : ''}`;
-      btn.disabled = !owned && state.np < avatar.price;
-      btn.addEventListener('click', () => buyOrEquipAvatar(avatar));
-      avatarList.appendChild(btn);
+      const disabled = !owned && state.np < avatar.price;
+      const btn = createButton(avatar.label, avatar.price, owned, disabled, () => buyOrEquipAvatar(avatar));
+      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      container.appendChild(btn);
     });
   }
 
@@ -203,7 +344,7 @@
       state.np -= upg.price;
       state.purchasedUpgrades.push(upg.id);
       if (upg.npPerClick) {
-        clickValue = upg.npPerClick; // We'll define clickValue globally later
+        clickValue = upg.npPerClick;
       }
       if (upg.npPerSecond) {
         state.passivePerSecond += upg.npPerSecond;
@@ -215,7 +356,7 @@
       showToast('Not enough NP or already owned');
     }
   }
-  
+
   function buyOrEquipSkin(skin) {
     const owned = state.purchasedSkins.includes(skin.id);
     if(!owned){
@@ -258,44 +399,48 @@
     }
   }
 
-  // Save/load to localStorage (simple)
   function saveState() {
     localStorage.setItem('npclicker_state', JSON.stringify(state));
   }
   function loadState() {
-    const s = localStorage.getItem('npclicker_state');
-    if(s){
-      try {
-        const loaded = JSON.parse(s);
+    const data = localStorage.getItem('npclicker_state');
+    if(data){
+      try{
+        let loaded = JSON.parse(data);
         Object.assign(state, loaded);
-      } catch(e) {
-        console.warn('Failed loading state:', e);
+      } catch(e){
+        console.warn('Failed loading state', e);
       }
     }
   }
 
-  // Toast - simple alert replacement
-  function showToast(message) {
-    // For simplicity use alert here, or you can implement custom toast.
-    console.log('Toast:', message);
+  function showToast(msg) {
+    // For demo, log to console - replace this with user-friendly toast if desired.
+    console.log('Toast:', msg);
   }
 
-  // Core clicking
-  let clickValue = 1; // base NP per click, modified by upgrades
-
-  $('clickArea').addEventListener('click', () => {
+  // Core click handling
+  const clickArea = $('clickArea');
+  clickArea.addEventListener('click', () => {
     state.np += clickValue;
     renderAll();
     onGlobalClickForQuest();
   });
 
-  // Passive NP generation every second (used by tick)
+  // Keyboard accessibility to click area: space or enter triggers click
+  clickArea.addEventListener('keydown', (e) => {
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      clickArea.click();
+    }
+  });
+
+  // Passive NP gain
   let lastTick = Date.now();
-  function tick(){
+  function tick() {
     const now = Date.now();
-    const dt = (now - lastTick) / 1000; // in seconds
+    const dt = (now - lastTick)/1000;
     lastTick = now;
-    // Add passive NP as integer amount to avoid fraction / display issues
     const gain = Math.floor(state.passivePerSecond * dt);
     if(gain > 0){
       state.np += gain;
@@ -304,14 +449,13 @@
   }
   setInterval(tick, 1000);
 
-  // Custom Cursor
+  // Cursor code
   const cursor = $('cursor');
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
   });
 
-  // Hide cursor when over interactive elements
   const interactiveSelectors = [
     '#shopList button',
     '#skinList button',
@@ -319,27 +463,24 @@
     '#completeQuestBtn',
     '#clickArea'
   ];
-
-  // Use one event listener for mouseover and mouseout to handle all selectors
-  document.addEventListener('mouseover', (e) => {
-    if (interactiveSelectors.some(sel => e.target.closest(sel))) {
+  document.addEventListener('mouseover', e => {
+    if(interactiveSelectors.some(sel => e.target.closest(sel))) {
       cursor.classList.add('hide-cursor');
     }
   });
-  document.addEventListener('mouseout', (e) => {
-    if (interactiveSelectors.some(sel => e.target.closest(sel))) {
+  document.addEventListener('mouseout', e => {
+    if(interactiveSelectors.some(sel => e.target.closest(sel))) {
       cursor.classList.remove('hide-cursor');
     }
   });
 
-  // Quest System
-  // For demo let's create a dummy quest that requires 10 clicks within 60 seconds
+  // Quest system
   function startQuest() {
     currentQuest = {
       progress: 0,
       target: 10,
       reward: 100,
-      expires: Date.now() + 60000, // 60 seconds from now
+      expires: Date.now() + 60000
     };
     updateQuestUI();
   }
@@ -347,7 +488,7 @@
   function updateQuestUI() {
     const questText = $('questText');
     const completeBtn = $('completeQuestBtn');
-    if (!currentQuest) {
+    if(!currentQuest){
       questText.textContent = 'No active quest.';
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
@@ -357,17 +498,17 @@
     const now = Date.now();
     const remaining = currentQuest.expires - now;
 
-    if(currentQuest.progress >= currentQuest.target){
+    if(currentQuest.progress >= currentQuest.target) {
       completeBtn.disabled = false;
       completeBtn.classList.remove('inactive');
       completeBtn.classList.add('active');
       questText.textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
-    } else if(remaining <= 0){
+    } else if(remaining <= 0) {
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
       completeBtn.classList.add('inactive');
       questText.textContent = 'Quest expired. Start a new one.';
-      currentQuest = null; // clear expired quest
+      currentQuest = null;
     } else {
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
@@ -376,7 +517,6 @@
     }
   }
 
-  // Quest complete button handler
   $('completeQuestBtn').addEventListener('click', () => {
     if(currentQuest && currentQuest.progress >= currentQuest.target){
       state.np += currentQuest.reward;
@@ -387,39 +527,34 @@
     }
   });
 
-  // Hook global click to count quest progress only on clickArea to prevent unintended clicks
-  function onGlobalClickForQuest(){
+  // Quest progress increments only on clickArea clicks
+  function onGlobalClickForQuest() {
     if(!currentQuest) return;
-    if(Date.now() > currentQuest.expires){
+    if(Date.now() > currentQuest.expires) {
       currentQuest = null;
       updateQuestUI();
       return;
     }
-    // For simplicity count clicks on clickArea only as quest progress
-    // That means this function should be called only on clicks on clickArea
     currentQuest.progress += 1;
     updateQuestUI();
   }
 
-  // Initialize / load
+  // Initialize
   loadState();
-  // If passivePerSecond upgrade is already bought, initialize clickValue properly
-  if(state.purchasedUpgrades.some(id => id === 1)){
-    clickValue = 2;
-  }
-  // Calculate passivePerSecond to be accurate if upgrades bought
+
+  // Set click value and passivePerSecond based on bought upgrades
+  if(state.purchasedUpgrades.some(id => id === 1)) clickValue = 2;
   state.passivePerSecond = 0;
   state.upgrades.forEach(upg => {
-    if(state.purchasedUpgrades.includes(upg.id) && upg.npPerSecond){
+    if(state.purchasedUpgrades.includes(upg.id) && upg.npPerSecond) {
       state.passivePerSecond += upg.npPerSecond;
     }
   });
 
   renderAll();
 
-  // For demo start a quest automatically
+  // Start quest demo
   startQuest();
 </script>
-
 </body>
 </html>
