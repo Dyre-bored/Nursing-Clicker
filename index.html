@@ -23,7 +23,6 @@
                 radial-gradient(circle at 90% 80%, rgba(96,165,250,0.06), transparent 12%),
                 var(--bg1);
     color: #e6eef6;
-    cursor: none; /* hide default since we use custom cursor */
   }
   .wrap{
     max-width:1180px;margin:28px auto;padding:22px;
@@ -96,8 +95,10 @@
   .item .meta{flex:1}
   .item .price{font-weight:800}
 
-  .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--g1);color:#022;cursor:pointer;font-weight:700;transition:transform .12s}
+  .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--g1);color:#022;cursor:pointer;font-weight:700;transition:transform .12s;position:relative;z-index:10}
+  .btn:hover{transform:translateY(-1px)}
   .btn:active{transform:translateY(1px) scale(0.99)}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;background:rgba(255,255,255,0.04)!important}
   .inline{display:flex;gap:8px;align-items:center}
 
   /* quest bar */
@@ -107,14 +108,14 @@
 
   /* avatar preview */
   .avatar{
-    width:68px;height:68;border-radius:12px;background:linear-gradient(180deg,#fff,#e6f7ff);display:flex;align-items:center;justify-content:center;color:#023;padding:6px;font-weight:800;
+    width:68px;height:68px;border-radius:12px;background:linear-gradient(180deg,#fff,#e6f7ff);display:flex;align-items:center;justify-content:center;color:#023;padding:6px;font-weight:800;
   }
 
   /* footer controls */
   .controls{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;margin-top:10px}
   .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8;cursor:pointer}
 
-  /* custom cursor element */
+  /* custom cursor element - only show when enabled */
   .cursor {
     position:fixed;
     pointer-events: none;
@@ -124,10 +125,25 @@
     will-change:transform,opacity;
     font-size:26px;
     text-shadow:0 6px 18px rgba(0,0,0,0.45);
+    display:none; /* hidden by default */
   }
+  .cursor.active{display:block}
   .cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
   .cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
   .cursor.hide-cursor{opacity:0}
+
+  /* Show default cursor on interactive elements when custom cursor is active */
+  body.custom-cursor-enabled {
+    cursor: none;
+  }
+  body.custom-cursor-enabled button,
+  body.custom-cursor-enabled a,
+  body.custom-cursor-enabled input,
+  body.custom-cursor-enabled select,
+  body.custom-cursor-enabled textarea,
+  body.custom-cursor-enabled [role="button"] {
+    cursor: pointer !important;
+  }
 
   /* responsive */
   @media (max-width:1020px){
@@ -197,7 +213,7 @@
           <div class="progress"><div class="bar" id="questBar"></div></div>
           <div style="display:flex;gap:8px;margin-top:8px">
             <button class="btn" id="startQuestBtn">Start Quest</button>
-            <button class="btn" id="completeQuestBtn" style="background:rgba(255,255,255,0.04)">Complete</button>
+            <button class="btn" id="completeQuestBtn" disabled>Complete</button>
           </div>
         </div>
       </div>
@@ -248,7 +264,7 @@
 </div>
 
 <!-- custom cursor element -->
-<div id="cursor" class="cursor" style="pointer-events:none;">🩺</div>
+<div id="cursor" class="cursor">🩺</div>
 
 <script>
 /* ========== GAME STATE & DEFAULTS ========== */
@@ -266,7 +282,8 @@ const state = {
   achievements: {},
   upgrades: {},
   autoClickers: 0,
-  lastTick: Date.now()
+  lastTick: Date.now(),
+  customCursorEnabled: false
 };
 
 const ranks = [
@@ -318,19 +335,24 @@ function renderAll(){
   $('rankXP').textContent = `${fmt(state.rankXP)} / ${fmt(ranks[state.rank].xpNeeded)}`;
   const rankPct = Math.min(100, (state.rankXP / ranks[state.rank].xpNeeded)*100);
   $('rankBar').style.width = rankPct + '%';
+  
   // achievements
-  const achContainer = $('achList'); achContainer.innerHTML = '';
+  const achContainer = $('achList'); 
+  achContainer.innerHTML = '';
   achievements.forEach(a=>{
     const unlocked = !!state.achievements[a.id];
-    const div = document.createElement('div'); div.className = 'ach' + (unlocked ? ' unlocked' : '');
+    const div = document.createElement('div'); 
+    div.className = 'ach' + (unlocked ? ' unlocked' : '');
     div.textContent = a.name + (unlocked ? ' ✓' : '');
     achContainer.appendChild(div);
   });
+  
   // quest
   updateQuestUI();
 
   // skin & avatar previews
   $('avatarPreview').textContent = getSkinEmoji(state.activeAvatar) || '🩺';
+  
   // shop list render
   renderShop();
   renderSkins();
@@ -338,110 +360,166 @@ function renderAll(){
 }
 
 function renderShop(){
-  const shop = $('shop'); shop.innerHTML = '';
+  const shop = $('shop'); 
+  shop.innerHTML = '';
   shopItems.forEach(item=>{
-    const div = document.createElement('div'); div.className='item';
+    const div = document.createElement('div'); 
+    div.className='item';
     div.innerHTML = `<div class="icon">${item.title.slice(0,2)}</div>
       <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
-      <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn" data-id="${item.id}">Buy</button></div></div>`;
+      <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn shop-btn" data-id="${item.id}">Buy</button></div></div>`;
     shop.appendChild(div);
-    const btn = div.querySelector('button');
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      buyItem(item.id);
-    });
   });
+  
+  // Add event listeners after all elements are created
+  setTimeout(() => {
+    shop.querySelectorAll('.shop-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const itemId = this.getAttribute('data-id');
+        buyItem(itemId);
+      });
+    });
+  }, 0);
 }
 
 function renderSkins(){
-  const list = $('skinList'); list.innerHTML = '';
+  const list = $('skinList'); 
+  list.innerHTML = '';
   skins.forEach(s=>{
     const owned = state.purchasedSkins.includes(s.id) || s.free;
     const btnTxt = (owned ? (state.activeSkin===s.id?'Equipped':'Equip') : `Buy ${s.price} NP`);
-    const el = document.createElement('div'); el.className='item'; el.style.minWidth='120px';
+    const el = document.createElement('div'); 
+    el.className='item'; 
+    el.style.minWidth='120px';
     el.innerHTML = `<div class="icon">${s.emoji}</div>
       <div class="meta"><div style="font-weight:700">${s.label}</div></div>
-      <div style="text-align:right"><button class="btn" data-skin="${s.id}">${btnTxt}</button></div>`;
+      <div style="text-align:right"><button class="btn skin-btn" data-skin="${s.id}">${btnTxt}</button></div>`;
     list.appendChild(el);
-    const btn = el.querySelector('button');
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      if(!owned){
-        if(state.np>=s.price){ 
-          state.np -= s.price; 
-          state.purchasedSkins.push(s.id); 
-          state.activeSkin = s.id; 
-          saveState(); 
-          renderAll(); 
-          showToast(`Bought ${s.label}`) 
-        }
-        else showToast('Not enough NP');
-      } else { 
-        state.activeSkin = s.id; 
-        saveState(); 
-        renderAll(); 
-        showToast(`${s.label} equipped`) 
-      }
-    });
   });
+  
+  // Add event listeners after all elements are created
+  setTimeout(() => {
+    list.querySelectorAll('.skin-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const skinId = this.getAttribute('data-skin');
+        buySkin(skinId);
+      });
+    });
+  }, 0);
 }
 
 function renderAvatars(){
-  const list = $('avatarList'); list.innerHTML = '';
+  const list = $('avatarList'); 
+  list.innerHTML = '';
   avatars.forEach(a=>{
     const owned = state.purchasedAvatars.includes(a.id) || a.free;
     const btnTxt = (owned ? (state.activeAvatar===a.id?'Equipped':'Equip') : `Buy ${a.price} NP`);
-    const el = document.createElement('div'); el.className='item'; el.style.minWidth='120px';
+    const el = document.createElement('div'); 
+    el.className='item'; 
+    el.style.minWidth='120px';
     el.innerHTML = `<div class="icon">${a.emoji}</div>
       <div class="meta"><div style="font-weight:700">${a.label}</div></div>
-      <div style="text-align:right"><button class="btn" data-av="${a.id}">${btnTxt}</button></div>`;
+      <div style="text-align:right"><button class="btn avatar-btn" data-av="${a.id}">${btnTxt}</button></div>`;
     list.appendChild(el);
-    const btn = el.querySelector('button');
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      if(!owned){
-        if(state.np>=a.price){ 
-          state.np -= a.price; 
-          state.purchasedAvatars.push(a.id); 
-          state.activeAvatar = a.id; 
-          saveState(); 
-          renderAll(); 
-          showToast(`Bought ${a.label}`) 
-        }
-        else showToast('Not enough NP');
-      } else { 
-        state.activeAvatar = a.id; 
-        saveState(); 
-        renderAll(); 
-        showToast(`${a.label} equipped`) 
-      }
-    });
   });
+  
+  // Add event listeners after all elements are created
+  setTimeout(() => {
+    list.querySelectorAll('.avatar-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const avatarId = this.getAttribute('data-av');
+        buyAvatar(avatarId);
+      });
+    });
+  }, 0);
+}
+
+/* ========== PURCHASE FUNCTIONS ========== */
+function buySkin(skinId) {
+  const skin = skins.find(s => s.id === skinId);
+  if (!skin) return;
+  
+  const owned = state.purchasedSkins.includes(skinId) || skin.free;
+  
+  if (!owned) {
+    if (state.np >= skin.price) {
+      state.np -= skin.price;
+      state.purchasedSkins.push(skinId);
+      state.activeSkin = skinId;
+      saveState();
+      renderAll();
+      updateCursorFromSkin();
+      showToast(`Bought ${skin.label}`);
+    } else {
+      showToast('Not enough NP');
+    }
+  } else {
+    state.activeSkin = skinId;
+    saveState();
+    renderAll();
+    updateCursorFromSkin();
+    showToast(`${skin.label} equipped`);
+  }
+}
+
+function buyAvatar(avatarId) {
+  const avatar = avatars.find(a => a.id === avatarId);
+  if (!avatar) return;
+  
+  const owned = state.purchasedAvatars.includes(avatarId) || avatar.free;
+  
+  if (!owned) {
+    if (state.np >= avatar.price) {
+      state.np -= avatar.price;
+      state.purchasedAvatars.push(avatarId);
+      state.activeAvatar = avatarId;
+      saveState();
+      renderAll();
+      showToast(`Bought ${avatar.label}`);
+    } else {
+      showToast('Not enough NP');
+    }
+  } else {
+    state.activeAvatar = avatarId;
+    saveState();
+    renderAll();
+    showToast(`${avatar.label} equipped`);
+  }
 }
 
 /* ========== INTERACTIONS ========== */
-const clickArea = $('clickArea');
-const clickIcon = $('clickIcon');
-clickIcon.addEventListener('click', (e)=> {
-  doClick(e);
-});
-
-/* clicking logic */
 function doClick(e){
   // main earning
   const earned = state.clickPower;
   state.np += earned;
   state.clicks += 1;
   state.rankXP += Math.max(1, Math.floor(earned/2));
-  spawnPop(e.clientX,e.clientY,`+${earned}`);
+  
+  // Spawn popup at click location
+  const clickArea = $('clickArea');
+  const rect = clickArea.getBoundingClientRect();
+  const x = e.clientX || rect.left + rect.width/2;
+  const y = e.clientY || rect.top + rect.height/2;
+  spawnPop(x, y, `+${earned}`);
+  
   checkAchievements();
-  saveState(); renderAll();
+  saveState(); 
+  renderAll();
 }
 
 /* spawn pop text */
 function spawnPop(x,y,text){
+  const clickArea = $('clickArea');
   const rect = clickArea.getBoundingClientRect();
-  const pop = document.createElement('div'); pop.className = 'pop'; pop.textContent = text;
+  const pop = document.createElement('div'); 
+  pop.className = 'pop'; 
+  pop.textContent = text;
   // position inside clickArea
   pop.style.left = (x - rect.left) + 'px';
   pop.style.top = (y - rect.top) + 'px';
@@ -490,8 +568,6 @@ function updateQuestUI(){
     $('questText').textContent = 'No active quest. Click "Start Quest" to get one.';
     $('questBar').style.width = '0%';
     completeBtn.disabled = true;
-    completeBtn.style.background = 'rgba(255,255,255,0.04)';
-    completeBtn.style.cursor = "not-allowed";
     return;
   }
   const now = Date.now();
@@ -502,18 +578,12 @@ function updateQuestUI(){
 
   if(currentQuest.progress >= currentQuest.target) {
     completeBtn.disabled = false;
-    completeBtn.style.background = 'var(--g1)';
-    completeBtn.style.cursor = "pointer";
     $('questText').textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
   } else if(remaining <= 0){
     completeBtn.disabled = true;
-    completeBtn.style.background = 'rgba(255,255,255,0.04)';
-    completeBtn.style.cursor = "not-allowed";
     $('questText').textContent = 'Quest expired. Start a new one.';
   } else {
     completeBtn.disabled = true;
-    completeBtn.style.background = 'rgba(255,255,255,0.04)';
-    completeBtn.style.cursor = "not-allowed";
   }
 }
 
@@ -562,12 +632,21 @@ function tick(){
 /* ========== MOUSE CURSOR ========== */
 const cursor = $('cursor');
 let mouseX=0, mouseY=0;
-document.addEventListener('mousemove', (e)=>{
-  mouseX = e.clientX; mouseY = e.clientY;
-  cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
-});
-document.addEventListener('mousedown', ()=>{ cursor.classList.add('big'); setTimeout(()=>cursor.classList.remove('big'),140) });
-document.addEventListener('mouseup', ()=>{ cursor.classList.remove('big') });
+
+function enableCustomCursor() {
+  state.customCursorEnabled = true;
+  document.body.classList.add('custom-cursor-enabled');
+  cursor.classList.add('active');
+  updateCursorFromSkin();
+}
+
+function updateCursorPosition(e) {
+  if (!state.customCursorEnabled) return;
+  mouseX = e.clientX; 
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px'; 
+  cursor.style.top = mouseY + 'px';
+}
 
 function getSkinEmoji(id){
   const s = skins.find(x=>x.id===id) || avatars.find(x=>x.id===id);
@@ -576,32 +655,28 @@ function getSkinEmoji(id){
 
 /* update cursor display from active skin */
 function updateCursorFromSkin(){
-  cursor.textContent = getSkinEmoji(state.activeSkin || 'stethoscope');
+  if (cursor) {
+    cursor.textContent = getSkinEmoji(state.activeSkin || 'stethoscope');
+  }
 }
-
-// Handle cursor visibility for interactive elements
-document.addEventListener('mouseover', function(e) {
-  if (e.target.matches('button, a, input, select, textarea, [role="button"]') || 
-      e.target.closest('button, a, input, select, textarea, [role="button"]')) {
-    cursor.classList.add('hide-cursor');
-  }
-});
-
-document.addEventListener('mouseout', function(e) {
-  if (e.target.matches('button, a, input, select, textarea, [role="button"]') || 
-      e.target.closest('button, a, input, select, textarea, [role="button"]')) {
-    cursor.classList.remove('hide-cursor');
-  }
-});
 
 /* ========== SMALL HELPERS ========== */
 function showToast(msg){
   // temporary small message near top-left
   const d = document.createElement('div');
-  d.textContent = msg; d.style.position='fixed'; d.style.left='18px'; d.style.top='18px';
-  d.style.padding='10px 12px'; d.style.borderRadius='10px'; d.style.background='rgba(0,0,0,0.6)';
-  d.style.color='white'; d.style.zIndex=99999; d.style.fontSize='13px';
-  d.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; document.body.appendChild(d);
+  d.textContent = msg; 
+  d.style.position='fixed'; 
+  d.style.left='18px'; 
+  d.style.top='18px';
+  d.style.padding='10px 12px'; 
+  d.style.borderRadius='10px'; 
+  d.style.background='rgba(0,0,0,0.8)';
+  d.style.color='white'; 
+  d.style.zIndex=99999; 
+  d.style.fontSize='13px';
+  d.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; 
+  d.style.pointerEvents='none';
+  document.body.appendChild(d);
   setTimeout(()=>d.remove(),2200);
 }
 
@@ -629,29 +704,10 @@ function loadState(){
   }catch(e){}
 }
 
-/* ========== EXPORT/IMPORT & RESET ========== */
-$('resetBtn').onclick = ()=>{
-  if(!confirm('Reset all progress?')) return;
-  localStorage.removeItem('nursingClickerSave'); location.reload();
-};
-$('exportBtn').onclick = ()=>{
-  const data = localStorage.getItem('nursingClickerSave') || '{}';
-  navigator.clipboard.writeText(data).then(()=>showToast('Save copied to clipboard'));
-};
-$('importBtn').onclick = ()=>{
-  const data = prompt('Paste save JSON here:');
-  if(!data) return;
-  try{ JSON.parse(data); localStorage.setItem('nursingClickerSave', data); showToast('Save imported — reloading'); setTimeout(()=>location.reload(),600) }
-  catch(e){ alert('Invalid JSON') }
-};
-
-/* ========== HOOK UI BUTTONS ========== */
-$('startQuestBtn').onclick = startQuest;
-$('completeQuestBtn').onclick = completeQuest;
-$('clickIcon').onpointerdown = (e)=>{ /* ripple */ };
-
 /* ========== INIT ========== */
 function init(){
+  console.log('Initializing game...');
+  
   loadState();
   // ensure basic defaults
   if(!state.purchasedSkins) state.purchasedSkins = [];
@@ -660,18 +716,91 @@ function init(){
   // give free default skin if not present
   if(!state.purchasedSkins.includes('stethoscope')) state.purchasedSkins.push('stethoscope');
   if(!state.purchasedAvatars.includes('stethoscope')) state.purchasedAvatars.push('stethoscope');
-  updateCursorFromSkin();
-  attachGlobalClickHook();
+  
+  // Setup event listeners
+  setupEventListeners();
+  
+  // Enable custom cursor after a short delay
+  setTimeout(() => {
+    enableCustomCursor();
+  }, 100);
+  
   renderAll();
   state.lastTick = Date.now();
   requestAnimationFrame(tick);
+  
+  console.log('Game initialized successfully');
 }
 
-/* when clicking anywhere that is a meaningful click, also progress quest */
-function attachGlobalClickHook(){
-  document.addEventListener('click', (e)=>{
-    // ignore clicks on shop buttons etc? still counts
-    onGlobalClickForQuest();
+function setupEventListeners() {
+  // Main click icon
+  const clickIcon = $('clickIcon');
+  if (clickIcon) {
+    clickIcon.addEventListener('click', doClick);
+    clickIcon.addEventListener('touchstart', doClick);
+  }
+  
+  // Quest buttons
+  const startQuestBtn = $('startQuestBtn');
+  const completeQuestBtn = $('completeQuestBtn');
+  if (startQuestBtn) startQuestBtn.addEventListener('click', startQuest);
+  if (completeQuestBtn) completeQuestBtn.addEventListener('click', completeQuest);
+  
+  // Control buttons
+  const resetBtn = $('resetBtn');
+  const exportBtn = $('exportBtn');
+  const importBtn = $('importBtn');
+  
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if(!confirm('Reset all progress?')) return;
+      localStorage.removeItem('nursingClickerSave'); 
+      location.reload();
+    });
+  }
+  
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const data = localStorage.getItem('nursingClickerSave') || '{}';
+      navigator.clipboard.writeText(data).then(()=>showToast('Save copied to clipboard'));
+    });
+  }
+  
+  if (importBtn) {
+    importBtn.addEventListener('click', () => {
+      const data = prompt('Paste save JSON here:');
+      if(!data) return;
+      try{ 
+        JSON.parse(data); 
+        localStorage.setItem('nursingClickerSave', data); 
+        showToast('Save imported — reloading'); 
+        setTimeout(()=>location.reload(),600) 
+      }
+      catch(e){ alert('Invalid JSON') }
+    });
+  }
+  
+  // Mouse events for cursor
+  document.addEventListener('mousemove', updateCursorPosition);
+  document.addEventListener('mousedown', ()=>{ 
+    if (state.customCursorEnabled) {
+      cursor.classList.add('big'); 
+      setTimeout(()=>cursor.classList.remove('big'),140);
+    }
+  });
+  
+  // Global click hook for quest progress
+  document.addEventListener('click', onGlobalClickForQuest);
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown',(e)=>{
+    if(e.key===' '){ 
+      e.preventDefault(); 
+      doClick({clientX:mouseX,clientY:mouseY});
+    }
+    if(e.key==='s') { 
+      startQuest(); 
+    }
   });
 }
 
@@ -683,15 +812,6 @@ setInterval(()=>{
   checkRank();
   updateCursorFromSkin();
 },2000);
-
-/* attach keyboard shortcuts (optional) */
-document.addEventListener('keydown',(e)=>{
-  if(e.key===' '){ e.preventDefault(); doClick({clientX:mouseX,clientY:mouseY}) }
-  if(e.key==='s') { startQuest(); }
-});
-
-/* ensure cursor emoji updates when skin/avatars change */
-new MutationObserver(()=>updateCursorFromSkin()).observe(document.getElementById('skinList'), {childList:true, subtree:true});
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
