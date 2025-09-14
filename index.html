@@ -417,7 +417,28 @@ function spawnPop(x,y,text){
   clickArea.appendChild(pop);
   setTimeout(()=>pop.remove(),900);
 }
+// List of selectors for interactive elements
+const interactiveSelectors = [
+  'button',
+  'a',
+  'input',
+  'select',
+  'textarea',
+  '[role="button"]'
+];
 
+interactiveSelectors.forEach(selector => {
+  document.addEventListener('mouseover', function(e) {
+    if (e.target.closest(selector)) {
+      cursor.classList.add('hide-cursor');
+    }
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest(selector)) {
+      cursor.classList.remove('hide-cursor');
+    }
+  });
+});
 /* ========== SHOP & UPGRADES ========== */
 function buyItem(id){
   const item = shopItems.find(i=>i.id===id);
