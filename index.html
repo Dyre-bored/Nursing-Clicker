@@ -1,235 +1,636 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Nursing Clicker — Nurse Points</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nursing Clicker — Nurse Points</title>
 
-  <!-- Google font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<!-- Google font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg1: #0f172a;
-      --g1: linear-gradient(135deg,#0ea5a5,#06b6d4 40%, #60a5fa);
-      --accent: #34d399;
-      --glass: rgba(255,255,255,0.06);
-      --card: rgba(255,255,255,0.03);
-    }
+<style>
+  :root{
+    --bg1: #0f172a; /* deep navy */
+    --g1: linear-gradient(135deg,#0ea5a5,#06b6d4 40%, #60a5fa);
+    --accent: #34d399;
+    --glass: rgba(255,255,255,0.06);
+    --card: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: radial-gradient(circle at 10% 10%, rgba(52,211,153,0.06), transparent 10%),
+                radial-gradient(circle at 90% 80%, rgba(96,165,250,0.06), transparent 12%),
+                var(--bg1);
+    color: #e6eef6;
+    cursor: none; /* hide default since we use custom cursor */
+  }
+  .wrap{
+    max-width:1180px;margin:28px auto;padding:22px;
+    display:grid;grid-template-columns: 340px 1fr 320px;gap:18px;
+  }
 
-    body{
-      margin:0;
-      font-family:Inter,sans-serif;
-      background:var(--bg1);
-      color:#f1f5f9;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      min-height:100vh;
-      padding:20px;
-    }
+  header{
+    grid-column:1/-1;margin-bottom:8px;display:flex;align-items:center;gap:18px;
+  }
+  .logo{
+    width:64px;height:64px;border-radius:12px;background:var(--g1);
+    box-shadow:0 6px 30px rgba(6,182,212,0.12), inset 0 -6px 18px rgba(0,0,0,0.2);
+    display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;
+  }
+  h1{font-size:20px;margin:0}
+  p.lead{margin:0;color:#b9d6ee;opacity:0.9;font-size:13px}
 
-    h1{
-      font-size:2.5rem;
-      font-weight:800;
-      background:var(--g1);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      margin:0 0 20px;
-    }
+  /* Left column (stats, achievements) */
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+         border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.45);backdrop-filter: blur(6px);}
+  .stat{
+    display:flex;align-items:center;gap:12px;margin-bottom:12px;
+  }
+  .coin{
+    width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#6ee7b7,#34d399);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#083344;font-size:20px;
+    box-shadow:0 6px 20px rgba(52,211,153,0.12);
+  }
+  .stat .meta{font-size:13px;color:#cfeef7}
+  .big-num{font-size:22px;font-weight:800;color:white}
 
-    .game-container{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:20px;
-      width:100%;
-      max-width:1000px;
-    }
+  .achievements{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .ach{padding:8px;border-radius:10px;background:var(--card);font-size:12px;color:#cfeef7;border:1px solid rgba(255,255,255,0.03)}
+  .ach.unlocked{background:linear-gradient(90deg,#e6fff0,#d6fff6);color:#05323a;border-color:rgba(0,0,0,0.06);font-weight:700}
 
-    .panel{
-      background:var(--card);
-      backdrop-filter:blur(8px);
-      padding:20px;
-      border-radius:16px;
-      box-shadow:0 8px 24px rgba(0,0,0,0.3);
-    }
+  /* Center gameplay */
+  .center{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
+  .click-area{
+    width:340px;height:340px;border-radius:26px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow:0 18px 60px rgba(6,182,212,0.08), inset 0 -10px 30px rgba(0,0,0,0.3);
+    position:relative;overflow:hidden;
+  }
+  .click-icon{
+    width:220px;height:220px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:64px;background:conic-gradient(from 200deg,#34d399,#06b6d4 40%, #60a5fa);
+    color:white;box-shadow:0 12px 28px rgba(6,182,212,0.12);transition:transform 160ms ease;
+    user-select:none;
+  }
+  .click-icon:active{transform:scale(0.96)}
+  .click-hint{font-size:13px;color:#bfe8f7;margin-top:6px}
 
-    .clicker{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
+  /* floating + pop feedback */
+  .pop {
+    position:absolute;pointer-events:none;font-weight:700;font-size:18px;
+    animation: popUp 900ms ease forwards;
+    color: #bff1ff;text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+  @keyframes popUp{
+    0%{opacity:1; transform:translateY(0) scale(1)}
+    40%{transform:translateY(-28px) scale(1.1)}
+    100%{opacity:0;transform:translateY(-60px) scale(1)}
+  }
 
-    .nurse-btn{
-      width:150px;
-      height:150px;
-      border-radius:50%;
-      border:none;
-      background:var(--g1);
-      color:white;
-      font-size:1.5rem;
-      font-weight:bold;
-      cursor:pointer;
-      transition:transform 0.1s;
-    }
+  /* Right column (shop & upgrades) */
+  .shop-list{display:flex;flex-direction:column;gap:10px}
+  .item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
+  .item .icon{width:48px;height:48;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .item .meta{flex:1}
+  .item .price{font-weight:800}
 
-    .nurse-btn:hover{ transform:scale(1.05);}
-    .nurse-btn:active{ transform:scale(0.95);}
+  .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--g1);color:#022;cursor:pointer;font-weight:700;transition:transform .12s}
+  .btn:active{transform:translateY(1px) scale(0.99)}
+  .inline{display:flex;gap:8px;align-items:center}
 
-    .points{ font-size:1.2rem; margin-top:10px;}
+  /* quest bar */
+  .quest{margin-top:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);font-size:13px}
+  .progress{height:10px;background:rgba(255,255,255,0.03);border-radius:10px;overflow:hidden;margin-top:8px}
+  .bar{height:100%;background:linear-gradient(90deg,#06b6d4,#34d399);width:0%}
 
-    .shop-item, .quest-item{
-      background:var(--glass);
-      padding:10px;
-      margin-bottom:10px;
-      border-radius:10px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
+  /* avatar preview */
+  .avatar{
+    width:68px;height:68;border-radius:12px;background:linear-gradient(180deg,#fff,#e6f7ff);display:flex;align-items:center;justify-content:center;color:#023;padding:6px;font-weight:800;
+  }
 
-    button{
-      background:var(--accent);
-      border:none;
-      border-radius:8px;
-      padding:6px 12px;
-      cursor:pointer;
-      font-weight:600;
-      transition:background 0.3s;
-      color:#0f172a;
-    }
+  /* footer controls */
+  .controls{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;margin-top:10px}
+  .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8}
 
-    button:hover{ background:#10b981; }
+  /* custom cursor element */
+  .cursor{
+    position:fixed;pointer-events:none;z-index:99999;transform:translate(-50%,-50%) scale(1);
+    transition:transform 120ms ease, opacity 180ms ease;
+    will-change:transform,opacity;
+    font-size:26px;
+    text-shadow:0 6px 18px rgba(0,0,0,0.45);
+  }
+  .cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
+  .cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
 
-    /* Achievements, shop, quests headers */
-    .panel h2{ margin-top:0; font-size:1.5rem; color:#93c5fd;}
-
-    /* Quest Complete button highlight */
-    button.active-btn {
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      color: white !important;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: 0.3s;
-    }
-    button.active-btn:hover {
-      transform: scale(1.05);
-    }
-  </style>
+  /* responsive */
+  @media (max-width:1020px){
+    .wrap{grid-template-columns: 1fr; padding:12px}
+    .center .click-area{width:300px;height:300px}
+  }
+</style>
 </head>
 <body>
-  <h1>Nursing Clicker</h1>
-  <div class="game-container">
-    <!-- Clicker Panel -->
-    <div class="panel clicker">
-      <button class="nurse-btn" id="clickBtn">Nurse</button>
-      <div class="points">Points: <span id="points">0</span></div>
-    </div>
 
-    <!-- Shop Panel -->
-    <div class="panel">
-      <h2>Shop</h2>
-      <div class="shop-item">
-        <span>Blue Cursor (50 pts)</span>
-        <button onclick="buyItem('blueCursor',50)">Buy</button>
-      </div>
-      <div class="shop-item">
-        <span>Green Cursor (100 pts)</span>
-        <button onclick="buyItem('greenCursor',100)">Buy</button>
-      </div>
-      <div class="shop-item">
-        <span>Avatar Nurse Hat (200 pts)</span>
-        <button onclick="buyItem('nurseHat',200)">Buy</button>
-      </div>
+<div class="wrap">
+  <header>
+    <div class="logo">NC</div>
+    <div>
+      <h1>Nursing Clicker — Nurse Points</h1>
+      <p class="lead">Click to administer care, level up your nurse rank, buy skins & avatars, finish quests — inspired by Magic Archery.</p>
     </div>
-
-    <!-- Quests Panel -->
-    <div class="panel">
-      <h2>Quests</h2>
-      <div class="quest-item" id="quest1">
-        <span>Click 10 times</span>
-        <button id="quest1btn" disabled>Complete</button>
+    <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+      <div style="text-align:right">
+        <div style="font-size:12px;color:#bfe8f7">Rank</div>
+        <div id="rankLabel" style="font-weight:800;font-size:16px">Student Nurse</div>
       </div>
-      <div class="quest-item" id="quest2">
-        <span>Earn 100 points</span>
-        <button id="quest2btn" disabled>Complete</button>
+      <div class="avatar" id="avatarPreview">🩺</div>
+    </div>
+  </header>
+
+  <!-- LEFT: stats + achievements -->
+  <aside class="panel">
+    <div class="stat">
+      <div class="coin" id="coinIcon">NP</div>
+      <div>
+        <div class="big-num" id="npCount">0</div>
+        <div class="meta">Nurse Points</div>
       </div>
     </div>
 
-    <!-- Achievements Panel -->
-    <div class="panel">
-      <h2>Achievements</h2>
-      <ul id="achievements"></ul>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:#bfe8f7">Click Power</div>
+        <div id="clickPower" style="font-weight:800">1</div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:12px;color:#bfe8f7">Passive NP / s</div>
+        <div id="pps" style="font-weight:800">0</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:#cfeef7;margin-bottom:8px">Achievements</div>
+    <div class="achievements" id="achList">
+      <!-- achievements injected here -->
+    </div>
+  </aside>
+
+  <!-- CENTER: gameplay -->
+  <main class="panel center">
+    <div class="click-area" id="clickArea">
+      <div class="click-icon" id="clickIcon" role="button" aria-label="Click to administer care">🩺</div>
+      <!-- popups -->
+    </div>
+    <div class="click-hint">Click the icon to administer care — earn NP. Use NP in the shop.</div>
+
+    <div style="width:100%;display:flex;gap:12px;margin-top:6px;justify-content:center">
+      <div style="flex:1;">
+        <div style="font-size:13px;color:#bfe8f7">Quests</div>
+        <div class="quest" id="questPanel">
+          <div id="questText">No active quest. Click "Start Quest" to get one.</div>
+          <div class="progress"><div class="bar" id="questBar"></div></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="startQuestBtn">Start Quest</button>
+            <button class="btn" id="completeQuestBtn" style="background:rgba(255,255,255,0.04)">Complete</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="width:260px">
+        <div style="font-size:13px;color:#bfe8f7">Rank Progress</div>
+        <div class="quest" id="rankPanel" style="text-align:center">
+          <div style="font-weight:800" id="rankXP">0 / 100</div>
+          <div class="progress" style="margin-top:8px"><div class="bar" id="rankBar"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT: shop / upgrades -->
+  <aside class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:13px;color:#bfe8f7">Shop & Upgrades</div>
+      <div style="font-size:12px;color:#bfe8f7">Spend NP to grow</div>
+    </div>
+
+    <div class="shop-list" id="shop">
+      <!-- shop items populated by JS -->
+    </div>
+
+    <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:12px 0">
+
+    <div style="font-size:13px;color:#bfe8f7;margin-bottom:6px">Cursor Skins</div>
+    <div id="skinList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <!-- skins -->
+    </div>
+
+    <div style="font-size:13px;color:#bfe8f7;margin-bottom:6px">Avatars</div>
+    <div id="avatarList" style="display:flex;flex-wrap:wrap;gap:8px">
+      <!-- avatars -->
+    </div>
+  </aside>
+
+  <div class="controls">
+    <div>
+      <button class="savebtn" id="resetBtn">Reset Progress</button>
+    </div>
+    <div>
+      <button class="savebtn" id="exportBtn">Export Save</button>
+      <button class="savebtn" id="importBtn">Import Save</button>
     </div>
   </div>
+</div>
 
-  <script>
-    let points = 0;
-    let clicks = 0;
-    let items = {};
+<!-- custom cursor element -->
+<div id="cursor" class="cursor">🩺</div>
 
-    const pointsEl = document.getElementById("points");
-    const clickBtn = document.getElementById("clickBtn");
+<script>
+/* ========== GAME STATE & DEFAULTS ========== */
+const state = {
+  np: 0,
+  clickPower: 1,
+  passivePerSecond: 0,
+  clicks: 0,
+  rankXP: 0,
+  rank: 0, // indices in ranks array
+  purchasedSkins: [],
+  activeSkin: 'stethoscope',
+  purchasedAvatars: [],
+  activeAvatar: 'stethoscope',
+  achievements: {},
+  upgrades: {},
+  autoClickers: 0,
+  lastTick: Date.now()
+};
 
-    clickBtn.addEventListener("click",()=>{
-      points++;
-      clicks++;
-      update();
-    });
+const ranks = [
+  {name:'Student Nurse', xpNeeded:100},
+  {name:'Nurse I', xpNeeded:300},
+  {name:'Nurse II', xpNeeded:800},
+  {name:'Charge Nurse', xpNeeded:2000},
+  {name:'Chief Nurse', xpNeeded:6000}
+];
 
-    function update(){
-      pointsEl.textContent = points;
+const achievements = [
+  {id:'firstClick', name:'First Injection', condition: s=>s.clicks>=1, reward: {np:5}},
+  {id:'click10', name:'10 Clicks', condition: s=>s.clicks>=10, reward: {np:25}},
+  {id:'click100', name:'100 Clicks', condition: s=>s.clicks>=100, reward: {np:250}},
+  {id:'np1k', name:'Kilo Nurse Points', condition: s=>s.np>=1000, reward: {np:500}}
+];
 
-      // Quests
-      if(clicks>=10){
-        let btn=document.getElementById("quest1btn");
-        btn.disabled=false;
-        btn.classList.add("active-btn");
-      }
-      if(points>=100){
-        let btn=document.getElementById("quest2btn");
-        btn.disabled=false;
-        btn.classList.add("active-btn");
-      }
+const shopItems = [
+  {id:'up1', title:'Better Syringe (+1 click)', desc:'Increase click power by 1.', price:50, apply(s){ s.clickPower += 1 }},
+  {id:'up2', title:'Efficient Charting (x2)', desc:'Double click yield (multiplier).', price:300, apply(s){ s.clickPower *= 2 }},
+  {id:'auto1', title:'Hire Intern (auto +1/s)', desc:'Generates 1 NP per second automatically.', price:250, apply(s){ s.autoClickers += 1; s.passivePerSecond += 1 }},
+  {id:'auto2', title:'Electronic Chart (auto +5/s)', desc:'Upgrade to +5 NP/s', price:1200, apply(s){ s.autoClickers += 1; s.passivePerSecond += 5 }},
+];
+
+const skins = [
+  {id:'stethoscope', label:'Stethoscope', emoji:'🩺', price:0, free:true},
+  {id:'syringe', label:'Syringe', emoji:'💉', price:80},
+  {id:'bandage', label:'Band-Aid', emoji:'🩹', price:140},
+  {id:'heart', label:'Healing Heart', emoji:'💗', price:300}
+];
+
+const avatars = [
+  {id:'stethoscope', label:'Classic', emoji:'🩺', price:0, free:true},
+  {id:'nurse', label:'Nurse Avatar', emoji:'👩‍⚕️', price:120},
+  {id:'doctor', label:'Doctor Avatar', emoji:'👨‍⚕️', price:250},
+  {id:'dragon', label:'Sourdough Dragon', emoji:'🐉', price:700}
+];
+
+/* ========== UTILITIES ========== */
+const $ = (id)=>document.getElementById(id);
+const fmt = n => Math.floor(n).toLocaleString();
+
+/* ========== RENDERING ========== */
+function renderAll(){
+  $('npCount').textContent = fmt(state.np);
+  $('clickPower').textContent = state.clickPower;
+  $('pps').textContent = state.passivePerSecond;
+  $('rankLabel').textContent = ranks[state.rank].name;
+  $('rankXP').textContent = `${fmt(state.rankXP)} / ${fmt(ranks[state.rank].xpNeeded)}`;
+  const rankPct = Math.min(100, (state.rankXP / ranks[state.rank].xpNeeded)*100);
+  $('rankBar').style.width = rankPct + '%';
+  // achievements
+  const achContainer = $('achList'); achContainer.innerHTML = '';
+  achievements.forEach(a=>{
+    const unlocked = !!state.achievements[a.id];
+    const div = document.createElement('div'); div.className = 'ach' + (unlocked ? ' unlocked' : '');
+    div.textContent = a.name + (unlocked ? ' ✓' : '');
+    achContainer.appendChild(div);
+  });
+  // quest
+  updateQuestUI();
+
+  // skin & avatar previews
+  $('avatarPreview').textContent = getSkinEmoji(state.activeAvatar) || '🩺';
+  // shop list render
+  renderShop();
+  renderSkins();
+  renderAvatars();
+}
+
+function renderShop(){
+  const shop = $('shop'); shop.innerHTML = '';
+  shopItems.forEach(item=>{
+    const div = document.createElement('div'); div.className='item';
+    div.innerHTML = `<div class="icon">${item.title.slice(0,2)}</div>
+      <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
+      <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn" data-id="${item.id}">Buy</button></div></div>`;
+    shop.appendChild(div);
+    div.querySelector('button').onclick = ()=>buyItem(item.id);
+  });
+}
+
+function renderSkins(){
+  const list = $('skinList'); list.innerHTML = '';
+  skins.forEach(s=>{
+    const owned = state.purchasedSkins.includes(s.id) || s.free;
+    const btnTxt = (owned ? (state.activeSkin===s.id?'Equipped':'Equip') : `Buy ${s.price} NP`);
+    const el = document.createElement('div'); el.className='item'; el.style.minWidth='120px';
+    el.innerHTML = `<div class="icon">${s.emoji}</div>
+      <div class="meta"><div style="font-weight:700">${s.label}</div></div>
+      <div style="text-align:right"><button class="btn" data-skin="${s.id}">${btnTxt}</button></div>`;
+    list.appendChild(el);
+    const btn = el.querySelector('button');
+    btn.onclick = ()=>{
+      if(!owned){
+        if(state.np>=s.price){ state.np -= s.price; state.purchasedSkins.push(s.id); state.activeSkin = s.id; saveState(); renderAll(); showToast(`Bought ${s.label}`) }
+        else showToast('Not enough NP');
+      } else { state.activeSkin = s.id; saveState(); renderAll(); showToast(`${s.label} equipped`) }
+    };
+  });
+}
+
+function renderAvatars(){
+  const list = $('avatarList'); list.innerHTML = '';
+  avatars.forEach(a=>{
+    const owned = state.purchasedAvatars.includes(a.id) || a.free;
+    const btnTxt = (owned ? (state.activeAvatar===a.id?'Equipped':'Equip') : `Buy ${a.price} NP`);
+    const el = document.createElement('div'); el.className='item'; el.style.minWidth='120px';
+    el.innerHTML = `<div class="icon">${a.emoji}</div>
+      <div class="meta"><div style="font-weight:700">${a.label}</div></div>
+      <div style="text-align:right"><button class="btn" data-av="${a.id}">${btnTxt}</button></div>`;
+    list.appendChild(el);
+    const btn = el.querySelector('button');
+    btn.onclick = ()=>{
+      if(!owned){
+        if(state.np>=a.price){ state.np -= a.price; state.purchasedAvatars.push(a.id); state.activeAvatar = a.id; saveState(); renderAll(); showToast(`Bought ${a.label}`) }
+        else showToast('Not enough NP');
+      } else { state.activeAvatar = a.id; saveState(); renderAll(); showToast(`${a.label} equipped`) }
+    };
+  });
+}
+
+/* ========== INTERACTIONS ========== */
+const clickArea = $('clickArea');
+const clickIcon = $('clickIcon');
+clickIcon.addEventListener('click', (e)=> {
+  doClick(e);
+});
+
+/* clicking logic */
+function doClick(e){
+  // main earning
+  const earned = state.clickPower;
+  state.np += earned;
+  state.clicks += 1;
+  state.rankXP += Math.max(1, Math.floor(earned/2));
+  spawnPop(e.clientX,e.clientY,`+${earned}`);
+  checkAchievements();
+  saveState(); renderAll();
+}
+
+/* spawn pop text */
+function spawnPop(x,y,text){
+  const rect = clickArea.getBoundingClientRect();
+  const pop = document.createElement('div'); pop.className = 'pop'; pop.textContent = text;
+  // position inside clickArea
+  pop.style.left = (x - rect.left) + 'px';
+  pop.style.top = (y - rect.top) + 'px';
+  clickArea.appendChild(pop);
+  setTimeout(()=>pop.remove(),900);
+}
+
+/* ========== SHOP & UPGRADES ========== */
+function buyItem(id){
+  const item = shopItems.find(i=>i.id===id);
+  if(!item) return;
+  if(state.np < item.price) return showToast('Not enough NP');
+  state.np -= item.price;
+  // apply effect (some items can be bought multiple times; but we keep simple)
+  item.apply(state);
+  state.upgrades[id] = (state.upgrades[id] || 0) + 1;
+  saveState(); renderAll(); showToast(`Purchased ${item.title}`);
+  checkRank();
+}
+
+/* ========== ACHIEVEMENTS ========= */
+function checkAchievements(){
+  achievements.forEach(a=>{
+    if(!state.achievements[a.id] && a.condition(state)){
+      state.achievements[a.id] = true;
+      if(a.reward && a.reward.np) state.np += a.reward.np;
+      showToast(`Achievement unlocked: ${a.name}`);
     }
+  });
+}
 
-    function buyItem(item,cost){
-      if(points>=cost){
-        points-=cost;
-        items[item]=true;
-        alert(item+" purchased!");
-        if(item==="blueCursor") document.body.style.cursor="url('https://cur.cursors-4u.net/cursors/cur-2/cur114.cur'), auto";
-        if(item==="greenCursor") document.body.style.cursor="url('https://cur.cursors-4u.net/cursors/cur-2/cur117.cur'), auto";
-        if(item==="nurseHat") document.body.style.background="linear-gradient(135deg,#ff9a9e,#fad0c4)";
-        update();
-      } else {
-        alert("Not enough points!");
-      }
-    }
+/* ========== QUESTS ========== */
+let currentQuest = null; // {target,progress,reward,expires}
+function startQuest(){
+  if(currentQuest) return showToast('Quest in progress');
+  // generate a random quest
+  const qTargets = [10,25,50,120]; // clicks requirement
+  const t = qTargets[Math.floor(Math.random()*qTargets.length)];
+  currentQuest = {target: t, progress:0, reward: Math.max(10, Math.floor(t*2.5)), expires: Date.now() + (1000*60*10)}; // 10 minutes
+  updateQuestUI(); showToast(`Quest started: make ${t} clicks`);
+}
 
-    // Quest complete button
-    document.getElementById("quest1btn").addEventListener("click",()=>{
-      if(clicks>=10){
-        points+=20;
-        alert("Quest Complete! +20 points");
-        document.getElementById("quest1btn").disabled=true;
-        document.getElementById("quest1btn").classList.remove("active-btn");
-        update();
-      }
-    });
+function updateQuestUI(){
+  const panel = $('questPanel');
+  if(!currentQuest){
+    $('questText').textContent = 'No active quest. Click "Start Quest" to get one.';
+    $('questBar').style.width = '0%';
+    return;
+  }
+  const now = Date.now();
+  const remaining = Math.max(0, currentQuest.expires - now);
+  $('questText').textContent = `Quest: ${currentQuest.progress} / ${currentQuest.target} clicks — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
+  const pct = Math.min(100,(currentQuest.progress/currentQuest.target)*100);
+  $('questBar').style.width = pct + '%';
+  if(currentQuest.progress >= currentQuest.target) {
+    $('questText').textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
+  } else if(remaining <= 0){
+    $('questText').textContent = 'Quest expired. Start a new one.';
+  }
+}
 
-    document.getElementById("quest2btn").addEventListener("click",()=>{
-      if(points>=100){
-        points+=50;
-        alert("Quest Complete! +50 points");
-        document.getElementById("quest2btn").disabled=true;
-        document.getElementById("quest2btn").classList.remove("active-btn");
-        update();
-      }
-    });
-  </script>
+function completeQuest(){
+  if(!currentQuest) return showToast('No active quest');
+  if(currentQuest.progress < currentQuest.target) return showToast('Quest not complete yet');
+  state.np += currentQuest.reward;
+  showToast(`Quest reward: +${currentQuest.reward} NP`);
+  currentQuest = null;
+  saveState(); renderAll();
+}
+
+/* hook clicks to quest progress */
+function onGlobalClickForQuest(){
+  if(!currentQuest) return;
+  if(Date.now() > currentQuest.expires){ currentQuest = null; updateQuestUI(); return; }
+  currentQuest.progress += 1;
+  updateQuestUI();
+}
+
+/* ========== RANKING ========== */
+function checkRank(){
+  while(state.rank < ranks.length-1 && state.rankXP >= ranks[state.rank].xpNeeded){
+    state.rankXP -= ranks[state.rank].xpNeeded;
+    state.rank += 1;
+    showToast(`Promoted to ${ranks[state.rank].name}!`);
+  }
+}
+
+/* ========== PASSIVE TICK ========== */
+function tick(){
+  const now = Date.now();
+  const dt = (now - state.lastTick) / 1000;
+  if(dt <= 0) { state.lastTick = now; requestAnimationFrame(tick); return; }
+  // passive NP
+  const gain = state.passivePerSecond * dt;
+  if(gain > 0) state.np += gain;
+  // also apply small bonus from rank maybe
+  state.lastTick = now;
+  // auto save occasionally
+  saveState();
+  renderAll();
+  requestAnimationFrame(tick);
+}
+
+/* ========== MOUSE CURSOR ========== */
+const cursor = $('cursor');
+let mouseX=0, mouseY=0;
+document.addEventListener('mousemove', (e)=>{
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+});
+document.addEventListener('mousedown', ()=>{ cursor.classList.add('big'); setTimeout(()=>cursor.classList.remove('big'),140) });
+document.addEventListener('mouseup', ()=>{ cursor.classList.remove('big') });
+
+function getSkinEmoji(id){
+  const s = skins.find(x=>x.id===id);
+  return s ? s.emoji : '🩺';
+}
+
+/* update cursor display from active skin */
+function updateCursorFromSkin(){
+  cursor.textContent = getSkinEmoji(state.activeSkin || 'stethoscope');
+}
+
+/* ========== SMALL HELPERS ========== */
+function showToast(msg){
+  // temporary small message near top-left
+  const d = document.createElement('div');
+  d.textContent = msg; d.style.position='fixed'; d.style.left='18px'; d.style.top='18px';
+  d.style.padding='10px 12px'; d.style.borderRadius='10px'; d.style.background='rgba(0,0,0,0.6)';
+  d.style.color='white'; d.style.zIndex=99999; d.style.fontSize='13px';
+  d.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; document.body.appendChild(d);
+  setTimeout(()=>d.remove(),2200);
+}
+
+function msToTime(ms){
+  if(ms<=0) return '0:00';
+  const s = Math.floor(ms/1000); const m = Math.floor(s/60); const sec = s%60;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+/* ========== PERSISTENCE ========== */
+function saveState(){
+  try{
+    const copy = {...state};
+    // remove functions if present
+    localStorage.setItem('nursingClickerSave', JSON.stringify(copy));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('nursingClickerSave');
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    Object.assign(state, parsed);
+  }catch(e){}
+}
+
+/* ========== EXPORT/IMPORT & RESET ========== */
+$('resetBtn').onclick = ()=>{
+  if(!confirm('Reset all progress?')) return;
+  localStorage.removeItem('nursingClickerSave'); location.reload();
+};
+$('exportBtn').onclick = ()=>{
+  const data = localStorage.getItem('nursingClickerSave') || '{}';
+  navigator.clipboard.writeText(data).then(()=>showToast('Save copied to clipboard'));
+};
+$('importBtn').onclick = ()=>{
+  const data = prompt('Paste save JSON here:');
+  if(!data) return;
+  try{ JSON.parse(data); localStorage.setItem('nursingClickerSave', data); showToast('Save imported — reloading'); setTimeout(()=>location.reload(),600) }
+  catch(e){ alert('Invalid JSON') }
+};
+
+/* ========== HOOK UI BUTTONS ========== */
+$('startQuestBtn').onclick = startQuest;
+$('completeQuestBtn').onclick = completeQuest;
+$('clickIcon').onpointerdown = (e)=>{ /* ripple */ };
+
+/* ========== INIT ========== */
+function init(){
+  loadState();
+  // ensure basic defaults
+  if(!state.purchasedSkins) state.purchasedSkins = [];
+  if(!state.purchasedAvatars) state.purchasedAvatars = [];
+  if(!state.achievements) state.achievements = {};
+  // give free default skin if not present
+  if(!state.purchasedSkins.includes('stethoscope')) state.purchasedSkins.push('stethoscope');
+  if(!state.purchasedAvatars.includes('stethoscope')) state.purchasedAvatars.push('stethoscope');
+  updateCursorFromSkin();
+  attachGlobalClickHook();
+  renderAll();
+  state.lastTick = Date.now();
+  requestAnimationFrame(tick);
+}
+
+/* when clicking anywhere that is a meaningful click, also progress quest */
+function attachGlobalClickHook(){
+  document.addEventListener('click', (e)=>{
+    // ignore clicks on shop buttons etc? still counts
+    onGlobalClickForQuest();
+  });
+}
+
+/* give passive reward from achievements if needed each tick */
+setInterval(()=>{
+  // check achievements every 2s
+  checkAchievements();
+  // check rank promotion
+  checkRank();
+  updateCursorFromSkin();
+},2000);
+
+/* attach keyboard shortcuts (optional) */
+document.addEventListener('keydown',(e)=>{
+  if(e.key===' '){ e.preventDefault(); doClick({clientX:mouseX,clientY:mouseY}) }
+  if(e.key==='s') { startQuest(); }
+});
+
+/* ensure cursor emoji updates when skin/avatars change */
+new MutationObserver(()=>updateCursorFromSkin()).observe(document.getElementById('skinList'), {childList:true, subtree:true});
+
+init();
+</script>
 </body>
 </html>
