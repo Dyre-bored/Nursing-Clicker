@@ -1,189 +1,314 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nursing Clicker Game - Stylish</title>
+  <title>Nursing Clicker Game - Modern Edition</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
     :root {
-      --g1: #4caf50; /* green */
-      --g2: #388e3c;
-      --bg: #121212;
-      --bg-alt: #1e1e1e;
-      --text: #ddd;
-      --accent: #81c784;
-      --shadow: rgba(0, 0, 0, 0.6);
-      --btn-hover-bg: #2e7d32;
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --blue-green: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --emerald-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      --ocean-gradient: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+      --medical-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+      
+      --bg-primary: #0a0f1c;
+      --bg-secondary: #1a1f2e;
+      --bg-card: rgba(26, 31, 46, 0.9);
+      --text-primary: #ffffff;
+      --text-secondary: #b8c5d6;
+      --accent-blue: #4facfe;
+      --accent-green: #38ef7d;
+      --shadow-soft: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --shadow-glow: 0 0 20px rgba(79, 172, 254, 0.3);
+      --border-glass: rgba(255, 255, 255, 0.18);
     }
 
-    /* Reset and base */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
+      background: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 40% 20%, hsla(228,100%,74%,0.1) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(355,85%,93%,0.1) 0px, transparent 50%),
+        radial-gradient(at 80% 50%, hsla(340,100%,76%,0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(22,100%,77%,0.1) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, hsla(242,100%,70%,0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, hsla(343,100%,76%,0.1) 0px, transparent 50%);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
     }
 
     #gameContainer {
-      max-width: 500px;
+      max-width: 600px;
       width: 100%;
-      background: var(--bg-alt);
-      border-radius: 12px;
-      box-shadow: 0 0 15px var(--shadow);
-      padding: 20px 30px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      padding: 30px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 30px;
+      position: relative;
+      overflow: hidden;
     }
 
-    h1, h2 {
-      margin: 0 0 12px 0;
-      font-weight: 700;
-      color: var(--accent);
-      user-select: none;
+    #gameContainer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+      opacity: 0.5;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
       text-align: center;
-      letter-spacing: 1.2px;
+      background: var(--blue-green);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      position: relative;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      position: relative;
+      padding-left: 15px;
+    }
+
+    h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 20px;
+      background: var(--emerald-gradient);
+      border-radius: 2px;
     }
 
     /* NP Display */
     #npDisplay {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       text-align: center;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       user-select: none;
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border-glass);
+      position: relative;
     }
+
     #npCount {
-      color: var(--g1);
+      background: var(--emerald-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      filter: drop-shadow(0 0 10px rgba(56, 239, 125, 0.3));
     }
 
     /* Click Area */
     #clickArea {
       width: 100%;
-      height: 200px;
-      background: linear-gradient(145deg, #333, #222);
-      border-radius: 16px;
-      box-shadow: inset 5px 5px 15px #1a1a1a,
-                  inset -5px -5px 15px #404040;
+      height: 220px;
+      background: var(--bg-secondary);
+      background-image: var(--medical-gradient);
+      border-radius: 20px;
+      border: 1px solid var(--border-glass);
       cursor: pointer;
-      color: var(--text);
-      font-size: 3rem;
+      color: var(--text-primary);
+      font-size: 4rem;
       font-weight: 700;
       display: flex;
       justify-content: center;
       align-items: center;
       user-select: none;
-      transition: background 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      text-shadow: 0 0 8px var(--g1);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
+
+    #clickArea::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    #clickArea:hover::before {
+      left: 100%;
+    }
+
     #clickArea:hover {
-      background: linear-gradient(145deg, #2a7a2a, #206920);
-      box-shadow: inset 5px 5px 20px #165116,
-                  inset -5px -5px 20px #44a744;
-      text-shadow: 0 0 15px var(--g1);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow), var(--shadow-soft);
+      background-image: var(--emerald-gradient);
     }
+
     #clickArea:active {
-      background: linear-gradient(145deg, #196619, #154d15);
-      box-shadow: inset 2px 2px 6px #103210,
-                  inset -2px -2px 6px #307730;
-      transform: scale(0.98);
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 4px 15px rgba(31, 38, 135, 0.3);
     }
 
     /* Sections */
     .section {
-      background: #222;
-      padding: 16px 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #0008 inset;
+      background: var(--bg-secondary);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid var(--border-glass);
       user-select: none;
+      position: relative;
+      overflow: hidden;
     }
 
-    .section h2 {
-      margin-bottom: 12px;
-      font-size: 1.4rem;
-      color: var(--accent);
+    .section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+      opacity: 0.3;
     }
 
     /* Buttons Grid */
     .btn-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(140px,1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
     }
 
     /* Buttons */
     .btn {
-      background-color: var(--g1);
+      background: var(--blue-green);
       border: none;
-      padding: 10px 0;
-      border-radius: 10px;
+      padding: 15px 20px;
+      border-radius: 12px;
       font-weight: 600;
-      font-size: 1rem;
-      color: #fff;
+      font-size: 0.95rem;
+      color: white;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(72, 207, 120, 0.6);
-      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover:not(:disabled)::before {
+      left: 100%;
+    }
+
     .btn:hover:not(:disabled) {
-      background-color: var(--btn-hover-bg);
-      box-shadow: 0 6px 10px rgba(72, 207, 120, 0.9);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+      background: var(--emerald-gradient);
     }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0) scale(0.98);
+    }
+
     .btn:disabled, .btn.inactive {
       cursor: not-allowed;
-      background-color: #555 !important;
-      box-shadow: none !important;
-      color: #aaa !important;
-      opacity: 0.7;
+      background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+      box-shadow: none;
+      color: #9ca3af;
+      opacity: 0.6;
       pointer-events: none;
-      user-select: none;
     }
+
     .btn.active {
-      background-color: var(--g1);
+      background: var(--success-gradient);
       cursor: pointer;
       pointer-events: auto;
       opacity: 1;
-      color: #fff;
-      box-shadow: 0 4px 6px rgba(72, 207, 120, 0.8);
+      color: white;
+      box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
     }
 
-    /* Shop/Skin/Avatar item labels */
+    /* Button labels */
     .btn span.label {
       display: block;
       font-weight: 700;
-      letter-spacing: 0.02em;
-      text-align: center;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
     }
+
     .btn span.price {
-      font-size: 0.85rem;
-      color: #ccffcccc;
-      letter-spacing: 0.01em;
+      font-size: 0.8rem;
+      opacity: 0.9;
+      font-weight: 500;
     }
 
     /* Quest Section */
     #questText {
       font-size: 1.1rem;
-      min-height: 38px;
-      margin-bottom: 8px;
+      min-height: 50px;
+      margin-bottom: 15px;
       text-align: center;
-      letter-spacing: 0.03em;
-      user-select: none;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      border-left: 4px solid var(--accent-blue);
     }
+
     #completeQuestBtn {
       width: 100%;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
+      padding: 15px;
       border-radius: 12px;
     }
 
@@ -194,52 +319,120 @@
       left: 0;
       pointer-events: none;
       z-index: 999999;
-      font-size: 2.5rem;
+      font-size: 3rem;
       transform: translate(-50%, -50%);
       transition: opacity 0.15s ease, transform 0.1s ease;
       user-select: none;
       will-change: transform, opacity;
-      text-shadow: 0 0 6px var(--g1);
+      filter: drop-shadow(0 0 10px rgba(79, 172, 254, 0.5));
     }
+
     .cursor.hide-cursor {
-      opacity: 0 !important;
-      pointer-events: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Click Animation */
+    @keyframes clickPulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    .click-effect {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--accent-green);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: clickPulse 0.6s ease-out;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      #gameContainer {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      #clickArea {
+        height: 180px;
+        font-size: 3rem;
+      }
+      
+      .btn-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Nursing themed icons and colors */
+    .nursing-icon::before {
+      content: '🏥';
+      margin-right: 8px;
+    }
+
+    .upgrade-icon::before {
+      content: '⚕️';
+      margin-right: 8px;
+    }
+
+    .skin-icon::before {
+      content: '👩‍⚕️';
+      margin-right: 8px;
+    }
+
+    .quest-icon::before {
+      content: '📋';
+      margin-right: 8px;
     }
   </style>
 </head>
 <body>
   <div id="gameContainer">
-    <h1>NP Clicker Game</h1>
-    <div id="npDisplay">NP: <span id="npCount">0</span></div>
+    <h1 class="nursing-icon">Nursing Clicker Game</h1>
+    <div id="npDisplay">Nursing Points: <span id="npCount">0</span></div>
 
-    <div id="clickArea" aria-label="Click Area" role="button" tabindex="0" title="Click me!">
-      🐵
+    <div id="clickArea" aria-label="Click Area" role="button" tabindex="0" title="Click to earn nursing points!">
+      👩‍⚕️
     </div>
 
     <div class="section" id="shopSection">
-      <h2>Shop</h2>
+      <h2 class="upgrade-icon">Medical Upgrades</h2>
       <div id="shopList" class="btn-grid"></div>
     </div>
 
     <div class="section" id="skinSection">
-      <h2>Skins</h2>
+      <h2 class="skin-icon">Nursing Uniforms</h2>
       <div id="skinList" class="btn-grid"></div>
     </div>
 
     <div class="section" id="avatarSection">
-      <h2>Avatars</h2>
+      <h2 class="skin-icon">Healthcare Specialists</h2>
       <div id="avatarList" class="btn-grid"></div>
     </div>
 
     <div class="section" id="questSection">
-      <h2>Quest</h2>
-      <div id="questText">No active quest.</div>
-      <button class="btn inactive" id="completeQuestBtn" disabled>Complete</button>
+      <h2 class="quest-icon">Daily Rounds</h2>
+      <div id="questText">No active rounds.</div>
+      <button class="btn inactive" id="completeQuestBtn" disabled>Complete Rounds</button>
     </div>
   </div>
 
   <!-- Custom Cursor -->
-  <div class="cursor" id="cursor">🐵</div>
+  <div class="cursor" id="cursor">👩‍⚕️</div>
 
 <script>
   // Utility
@@ -264,16 +457,16 @@
     activeSkin: null,
     activeAvatar: null,
     upgrades: [
-      { id:1, label:'Double Click NP', price:100, npPerClick:2 },
-      { id:2, label:'Auto NP Gain', price:500, npPerSecond:1 }
+      { id:1, label:'Advanced Stethoscope', price:100, npPerClick:2 },
+      { id:2, label:'Automated IV System', price:500, npPerSecond:1 }
     ],
     skins: [
-      { id:1, label:'Classic Monkey', price:200 },
-      { id:2, label:'Golden Monkey', price:500 }
+      { id:1, label:'Classic Scrubs', price:200 },
+      { id:2, label:'Premium Uniform', price:500 }
     ],
     avatars: [
-      { id:1, label:'Ninja Monkey', price:300 },
-      { id:2, label:'Pirate Monkey', price:600 }
+      { id:1, label:'ER Specialist', price:300 },
+      { id:2, label:'ICU Nurse', price:600 }
     ]
   };
 
@@ -290,6 +483,18 @@
 
   function renderNP() {
     $('npCount').textContent = fmt(state.np);
+  }
+
+  function createClickEffect(x, y) {
+    const effect = document.createElement('div');
+    effect.className = 'click-effect';
+    effect.style.left = x + 'px';
+    effect.style.top = y + 'px';
+    document.body.appendChild(effect);
+    
+    setTimeout(() => {
+      effect.remove();
+    }, 600);
   }
 
   function createButton(text, price, owned, disabled, onClick) {
@@ -310,7 +515,7 @@
       const owned = state.purchasedUpgrades.includes(upg.id);
       const disabled = owned || state.np < upg.price;
       const btn = createButton(upg.label, upg.price, owned, disabled, () => buyItem(upg));
-      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      if(owned) btn.querySelector('.label').textContent += ' ✓';
       container.appendChild(btn);
     });
   }
@@ -322,7 +527,7 @@
       const owned = state.purchasedSkins.includes(skin.id);
       const disabled = !owned && state.np < skin.price;
       const btn = createButton(skin.label, skin.price, owned, disabled, () => buyOrEquipSkin(skin));
-      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      if(owned) btn.querySelector('.label').textContent += ' ✓';
       container.appendChild(btn);
     });
   }
@@ -334,7 +539,7 @@
       const owned = state.purchasedAvatars.includes(avatar.id);
       const disabled = !owned && state.np < avatar.price;
       const btn = createButton(avatar.label, avatar.price, owned, disabled, () => buyOrEquipAvatar(avatar));
-      if(owned) btn.querySelector('.label').textContent += ' (Owned)';
+      if(owned) btn.querySelector('.label').textContent += ' ✓';
       container.appendChild(btn);
     });
   }
@@ -351,9 +556,9 @@
       }
       saveState();
       renderAll();
-      showToast(`Bought ${upg.label}`);
+      showToast(`Purchased ${upg.label}!`);
     } else {
-      showToast('Not enough NP or already owned');
+      showToast('Insufficient nursing points or already owned');
     }
   }
 
@@ -366,15 +571,15 @@
         state.activeSkin = skin.id;
         saveState();
         renderAll();
-        showToast(`Bought ${skin.label}`);
+        showToast(`Purchased ${skin.label}!`);
       } else {
-        showToast('Not enough NP');
+        showToast('Insufficient nursing points');
       }
     } else {
       state.activeSkin = skin.id;
       saveState();
       renderAll();
-      showToast(`${skin.label} equipped`);
+      showToast(`${skin.label} equipped!`);
     }
   }
 
@@ -387,47 +592,50 @@
         state.activeAvatar = avatar.id;
         saveState();
         renderAll();
-        showToast(`Bought ${avatar.label}`);
+        showToast(`Hired ${avatar.label}!`);
       } else {
-        showToast('Not enough NP');
+        showToast('Insufficient nursing points');
       }
     } else {
       state.activeAvatar = avatar.id;
       saveState();
       renderAll();
-      showToast(`${avatar.label} equipped`);
+      showToast(`${avatar.label} on duty!`);
     }
   }
 
   function saveState() {
-    localStorage.setItem('npclicker_state', JSON.stringify(state));
+    // Note: localStorage is not supported in Claude artifacts
+    // In a real environment, this would save to localStorage
+    console.log('State saved:', state);
   }
+  
   function loadState() {
-    const data = localStorage.getItem('npclicker_state');
-    if(data){
-      try{
-        let loaded = JSON.parse(data);
-        Object.assign(state, loaded);
-      } catch(e){
-        console.warn('Failed loading state', e);
-      }
-    }
+    // Note: localStorage is not supported in Claude artifacts
+    // In a real environment, this would load from localStorage
+    console.log('State loaded');
   }
 
   function showToast(msg) {
-    // For demo, log to console - replace this with user-friendly toast if desired.
     console.log('Toast:', msg);
+    // In a real implementation, this would show a visual toast notification
   }
 
   // Core click handling
   const clickArea = $('clickArea');
-  clickArea.addEventListener('click', () => {
+  clickArea.addEventListener('click', (e) => {
     state.np += clickValue;
     renderAll();
     onGlobalClickForQuest();
+    
+    // Create click effect
+    const rect = clickArea.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    createClickEffect(e.clientX, e.clientY);
   });
 
-  // Keyboard accessibility to click area: space or enter triggers click
+  // Keyboard accessibility
   clickArea.addEventListener('keydown', (e) => {
     if(e.key === ' ' || e.key === 'Enter'){
       e.preventDefault();
@@ -463,11 +671,13 @@
     '#completeQuestBtn',
     '#clickArea'
   ];
+  
   document.addEventListener('mouseover', e => {
     if(interactiveSelectors.some(sel => e.target.closest(sel))) {
       cursor.classList.add('hide-cursor');
     }
   });
+  
   document.addEventListener('mouseout', e => {
     if(interactiveSelectors.some(sel => e.target.closest(sel))) {
       cursor.classList.remove('hide-cursor');
@@ -489,7 +699,7 @@
     const questText = $('questText');
     const completeBtn = $('completeQuestBtn');
     if(!currentQuest){
-      questText.textContent = 'No active quest.';
+      questText.textContent = 'No active rounds. Start your shift!';
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
       completeBtn.classList.add('inactive');
@@ -502,18 +712,18 @@
       completeBtn.disabled = false;
       completeBtn.classList.remove('inactive');
       completeBtn.classList.add('active');
-      questText.textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
+      questText.textContent = `Rounds complete! Click "Complete Rounds" to earn ${currentQuest.reward} NP.`;
     } else if(remaining <= 0) {
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
       completeBtn.classList.add('inactive');
-      questText.textContent = 'Quest expired. Start a new one.';
+      questText.textContent = 'Shift expired. Take a break and start new rounds.';
       currentQuest = null;
     } else {
       completeBtn.disabled = true;
       completeBtn.classList.remove('active');
       completeBtn.classList.add('inactive');
-      questText.textContent = `Quest: ${currentQuest.progress} / ${currentQuest.target} clicks — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
+      questText.textContent = `Patient care: ${currentQuest.progress} / ${currentQuest.target} treatments — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
     }
   }
 
@@ -522,7 +732,7 @@
       state.np += currentQuest.reward;
       currentQuest = null;
       renderAll();
-      showToast('Quest reward claimed!');
+      showToast('Excellent patient care! Reward earned!');
       updateQuestUI();
     }
   });
@@ -554,7 +764,9 @@
   renderAll();
 
   // Start quest demo
-  startQuest();
+  setTimeout(() => {
+    startQuest();
+  }, 1000);
 </script>
 </body>
 </html>
