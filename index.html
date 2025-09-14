@@ -1,824 +1,425 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Nursing Clicker — Nurse Points</title>
-
-<!-- Google font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fixed NP Clicker Game</title>
 <style>
-  :root{
-    --bg1: #0f172a; /* deep navy */
-    --g1: linear-gradient(135deg,#0ea5a5,#06b6d4 40%, #60a5fa);
-    --accent: #34d399;
-    --glass: rgba(255,255,255,0.06);
-    --card: rgba(255,255,255,0.03);
+  :root {
+    --g1: #4caf50; /* green */
+    --g2: #388e3c;
   }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{
-    background: radial-gradient(circle at 10% 10%, rgba(52,211,153,0.06), transparent 10%),
-                radial-gradient(circle at 90% 80%, rgba(96,165,250,0.06), transparent 12%),
-                var(--bg1);
-    color: #e6eef6;
-  }
-  .wrap{
-    max-width:1180px;margin:28px auto;padding:22px;
-    display:grid;grid-template-columns: 340px 1fr 320px;gap:18px;
+  body {
+    background: #222;
+    color: #ddd;
+    font-family: Arial, sans-serif;
   }
 
-  header{
-    grid-column:1/-1;margin-bottom:8px;display:flex;align-items:center;gap:18px;
-  }
-  .logo{
-    width:64px;height:64px;border-radius:12px;background:var(--g1);
-    box-shadow:0 6px 30px rgba(6,182,212,0.12), inset 0 -6px 18px rgba(0,0,0,0.2);
-    display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;
-  }
-  h1{font-size:20px;margin:0}
-  p.lead{margin:0;color:#b9d6ee;opacity:0.9;font-size:13px}
-
-  /* Left column (stats, achievements) */
-  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-         border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.45);backdrop-filter: blur(6px);}
-  .stat{
-    display:flex;align-items:center;gap:12px;margin-bottom:12px;
-  }
-  .coin{
-    width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#6ee7b7,#34d399);
-    display:flex;align-items:center;justify-content:center;font-weight:700;color:#083344;font-size:20px;
-    box-shadow:0 6px 20px rgba(52,211,153,0.12);
-  }
-  .stat .meta{font-size:13px;color:#cfeef7}
-  .big-num{font-size:22px;font-weight:800;color:white}
-
-  .achievements{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-  .ach{padding:8px;border-radius:10px;background:var(--card);font-size:12px;color:#cfeef7;border:1px solid rgba(255,255,255,0.03)}
-  .ach.unlocked{background:linear-gradient(90deg,#e6fff0,#d6fff6);color:#05323a;border-color:rgba(0,0,0,0.06);font-weight:700}
-
-  /* Center gameplay */
-  .center{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
-  .click-area{
-    width:340px;height:340px;border-radius:26px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow:0 18px 60px rgba(6,182,212,0.08), inset 0 -10px 30px rgba(0,0,0,0.3);
-    position:relative;overflow:hidden;
-  }
-  .click-icon{
-    width:220px;height:220px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:64px;background:conic-gradient(from 200deg,#34d399,#06b6d4 40%, #60a5fa);
-    color:white;box-shadow:0 12px 28px rgba(6,182,212,0.12);transition:transform 160ms ease;
-    user-select:none;cursor:pointer;
-  }
-  .click-icon:active{transform:scale(0.96)}
-  .click-hint{font-size:13px;color:#bfe8f7;margin-top:6px}
-
-  /* floating + pop feedback */
-  .pop {
-    position:absolute;pointer-events:none;font-weight:700;font-size:18px;
-    animation: popUp 900ms ease forwards;
-    color: #bff1ff;text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-  }
-  @keyframes popUp{
-    0%{opacity:1; transform:translateY(0) scale(1)}
-    40%{transform:translateY(-28px) scale(1.1)}
-    100%{opacity:0;transform:translateY(-60px) scale(1)}
-  }
-
-  /* Right column (shop & upgrades) */
-  .shop-list{display:flex;flex-direction:column;gap:10px}
-  .item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
-  .item .icon{width:48px;height:48px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700}
-  .item .meta{flex:1}
-  .item .price{font-weight:800}
-
-  .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--g1);color:#022;cursor:pointer;font-weight:700;transition:transform .12s;position:relative;z-index:10}
-  .btn:hover{transform:translateY(-1px)}
-  .btn:active{transform:translateY(1px) scale(0.99)}
-  .btn:disabled{opacity:0.5;cursor:not-allowed;background:rgba(255,255,255,0.04)!important}
-  .inline{display:flex;gap:8px;align-items:center}
-
-  /* quest bar */
-  .quest{margin-top:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);font-size:13px}
-  .progress{height:10px;background:rgba(255,255,255,0.03);border-radius:10px;overflow:hidden;margin-top:8px}
-  .bar{height:100%;background:linear-gradient(90deg,#06b6d4,#34d399);width:0%}
-
-  /* avatar preview */
-  .avatar{
-    width:68px;height:68px;border-radius:12px;background:linear-gradient(180deg,#fff,#e6f7ff);display:flex;align-items:center;justify-content:center;color:#023;padding:6px;font-weight:800;
-  }
-
-  /* footer controls */
-  .controls{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;margin-top:10px}
-  .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8;cursor:pointer}
-
-  /* custom cursor element - only show when enabled */
+  /* Custom Cursor */
   .cursor {
-    position:fixed;
+    position: fixed;
+    top: 0;
+    left: 0;
     pointer-events: none;
-    z-index:99999;
-    transform:translate(-50%,-50%) scale(1);
-    transition:transform 120ms ease, opacity 180ms ease;
-    will-change:transform,opacity;
-    font-size:26px;
-    text-shadow:0 6px 18px rgba(0,0,0,0.45);
-    display:none; /* hidden by default */
+    z-index: 9999;
+    font-size: 2rem;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
   }
-  .cursor.active{display:block}
-  .cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
-  .cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
-  .cursor.hide-cursor{opacity:0}
+  /* Hide cursor on interactive elements */
+  .cursor.hide-cursor {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 
-  /* Show default cursor on interactive elements when custom cursor is active */
-  body.custom-cursor-enabled {
-    cursor: none;
+  /* Quest Complete Button Styles */
+  .btn {
+    background: var(--g1);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    user-select: none;
   }
-  body.custom-cursor-enabled button,
-  body.custom-cursor-enabled a,
-  body.custom-cursor-enabled input,
-  body.custom-cursor-enabled select,
-  body.custom-cursor-enabled textarea,
-  body.custom-cursor-enabled [role="button"] {
+  .btn:hover:not(:disabled) {
+    background: var(--g2);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+  }
+
+  /* Active/Inactive for complete quest */
+  .btn.inactive {
+    background: rgba(255,255,255,0.04) !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.6;
+  }
+  .btn.active {
+    background: var(--g1) !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
+    opacity: 1;
   }
 
-  /* responsive */
-  @media (max-width:1020px){
-    .wrap{grid-template-columns: 1fr; padding:12px}
-    .center .click-area{width:300px;height:300px}
+  /* Shop lists styling */
+  #shopList, #skinList, #avatarList {
+    margin: 10px 0;
+  }
+  #shopList button, #skinList button, #avatarList button {
+    margin: 4px;
+    padding: 6px 10px;
+    font-size: 1rem;
   }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header>
-    <div class="logo">NC</div>
-    <div>
-      <h1>Nursing Clicker — Nurse Points</h1>
-      <p class="lead">Click to administer care, level up your nurse rank, buy skins & avatars, finish quests — inspired by Magic Archery.</p>
-    </div>
-    <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-      <div style="text-align:right">
-        <div style="font-size:12px;color:#bfe8f7">Rank</div>
-        <div id="rankLabel" style="font-weight:800;font-size:16px">Student Nurse</div>
-      </div>
-      <div class="avatar" id="avatarPreview">🩺</div>
-    </div>
-  </header>
-
-  <!-- LEFT: stats + achievements -->
-  <aside class="panel">
-    <div class="stat">
-      <div class="coin" id="coinIcon">NP</div>
-      <div>
-        <div class="big-num" id="npCount">0</div>
-        <div class="meta">Nurse Points</div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <div style="flex:1;">
-        <div style="font-size:12px;color:#bfe8f7">Click Power</div>
-        <div id="clickPower" style="font-weight:800">1</div>
-      </div>
-      <div style="flex:1;">
-        <div style="font-size:12px;color:#bfe8f7">Passive NP / s</div>
-        <div id="pps" style="font-weight:800">0</div>
-      </div>
-    </div>
-
-    <div style="font-size:13px;color:#cfeef7;margin-bottom:8px">Achievements</div>
-    <div class="achievements" id="achList">
-      <!-- achievements injected here -->
-    </div>
-  </aside>
-
-  <!-- CENTER: gameplay -->
-  <main class="panel center">
-    <div class="click-area" id="clickArea">
-      <div class="click-icon" id="clickIcon" role="button" aria-label="Click to administer care">🩺</div>
-      <!-- popups -->
-    </div>
-    <div class="click-hint">Click the icon to administer care — earn NP. Use NP in the shop.</div>
-
-    <div style="width:100%;display:flex;gap:12px;margin-top:6px;justify-content:center">
-      <div style="flex:1;">
-        <div style="font-size:13px;color:#bfe8f7">Quests</div>
-        <div class="quest" id="questPanel">
-          <div id="questText">No active quest. Click "Start Quest" to get one.</div>
-          <div class="progress"><div class="bar" id="questBar"></div></div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" id="startQuestBtn">Start Quest</button>
-            <button class="btn" id="completeQuestBtn" disabled>Complete</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="width:260px">
-        <div style="font-size:13px;color:#bfe8f7">Rank Progress</div>
-        <div class="quest" id="rankPanel" style="text-align:center">
-          <div style="font-weight:800" id="rankXP">0 / 100</div>
-          <div class="progress" style="margin-top:8px"><div class="bar" id="rankBar"></div></div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- RIGHT: shop / upgrades -->
-  <aside class="panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-size:13px;color:#bfe8f7">Shop & Upgrades</div>
-      <div style="font-size:12px;color:#bfe8f7">Spend NP to grow</div>
-    </div>
-
-    <div class="shop-list" id="shop">
-      <!-- shop items populated by JS -->
-    </div>
-
-    <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:12px 0">
-
-    <div style="font-size:13px;color:#bfe8f7;margin-bottom:6px">Cursor Skins</div>
-    <div id="skinList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-      <!-- skins -->
-    </div>
-
-    <div style="font-size:13px;color:#bfe8f7;margin-bottom:6px">Avatars</div>
-    <div id="avatarList" style="display:flex;flex-wrap:wrap;gap:8px">
-      <!-- avatars -->
-    </div>
-  </aside>
-
-  <div class="controls">
-    <div>
-      <button class="savebtn" id="resetBtn">Reset Progress</button>
-    </div>
-    <div>
-      <button class="savebtn" id="exportBtn">Export Save</button>
-      <button class="savebtn" id="importBtn">Import Save</button>
-    </div>
+<div>
+  <h1>NP Clicker Game</h1>
+  <div>NP: <span id="npCount">0</span></div>
+  <div id="clickArea" style="width:200px;height:200px;background:#444; margin:10px auto; text-align:center;line-height:200px; font-size:2rem; color:#fff; cursor:pointer;">
+    Click Me
   </div>
+  
+  <h2>Shop</h2>
+  <div id="shopList"></div>
+
+  <h2>Skins</h2>
+  <div id="skinList"></div>
+
+  <h2>Avatars</h2>
+  <div id="avatarList"></div>
+
+  <h2>Quest</h2>
+  <div id="questText">No active quest.</div>
+  <button class="btn inactive" id="completeQuestBtn" disabled>Complete</button>
 </div>
 
-<!-- custom cursor element -->
-<div id="cursor" class="cursor">🩺</div>
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor">🐵</div>
 
 <script>
-/* ========== GAME STATE & DEFAULTS ========== */
-const state = {
-  np: 0,
-  clickPower: 1,
-  passivePerSecond: 0,
-  clicks: 0,
-  rankXP: 0,
-  rank: 0, // indices in ranks array
-  purchasedSkins: [],
-  activeSkin: 'stethoscope',
-  purchasedAvatars: [],
-  activeAvatar: 'stethoscope',
-  achievements: {},
-  upgrades: {},
-  autoClickers: 0,
-  lastTick: Date.now(),
-  customCursorEnabled: false
-};
+  // Utility function
+  function $(id) { return document.getElementById(id); }
 
-const ranks = [
-  {name:'Student Nurse', xpNeeded:100},
-  {name:'Nurse I', xpNeeded:300},
-  {name:'Nurse II', xpNeeded:800},
-  {name:'Charge Nurse', xpNeeded:2000},
-  {name:'Chief Nurse', xpNeeded:6000}
-];
-
-const achievements = [
-  {id:'firstClick', name:'First Injection', condition: s=>s.clicks>=1, reward: {np:5}},
-  {id:'click10', name:'10 Clicks', condition: s=>s.clicks>=10, reward: {np:25}},
-  {id:'click100', name:'100 Clicks', condition: s=>s.clicks>=100, reward: {np:250}},
-  {id:'np1k', name:'Kilo Nurse Points', condition: s=>s.np>=1000, reward: {np:500}}
-];
-
-const shopItems = [
-  {id:'up1', title:'Better Syringe (+1 click)', desc:'Increase click power by 1.', price:50, apply(s){ s.clickPower += 1 }},
-  {id:'up2', title:'Efficient Charting (x2)', desc:'Double click yield (multiplier).', price:300, apply(s){ s.clickPower *= 2 }},
-  {id:'auto1', title:'Hire Intern (auto +1/s)', desc:'Generates 1 NP per second automatically.', price:250, apply(s){ s.autoClickers += 1; s.passivePerSecond += 1 }},
-  {id:'auto2', title:'Electronic Chart (auto +5/s)', desc:'Upgrade to +5 NP/s', price:1200, apply(s){ s.autoClickers += 1; s.passivePerSecond += 5 }},
-];
-
-const skins = [
-  {id:'stethoscope', label:'Stethoscope', emoji:'🩺', price:0, free:true},
-  {id:'syringe', label:'Syringe', emoji:'💉', price:80},
-  {id:'bandage', label:'Band-Aid', emoji:'🩹', price:140},
-  {id:'heart', label:'Healing Heart', emoji:'💗', price:300}
-];
-
-const avatars = [
-  {id:'stethoscope', label:'Classic', emoji:'🩺', price:0, free:true},
-  {id:'nurse', label:'Nurse Avatar', emoji:'👩‍⚕️', price:120},
-  {id:'doctor', label:'Doctor Avatar', emoji:'👨‍⚕️', price:250},
-  {id:'dragon', label:'Sourdough Dragon', emoji:'🐉', price:700}
-];
-
-/* ========== UTILITIES ========== */
-const $ = (id)=>document.getElementById(id);
-const fmt = n => Math.floor(n).toLocaleString();
-
-/* ========== RENDERING ========== */
-function renderAll(){
-  $('npCount').textContent = fmt(state.np);
-  $('clickPower').textContent = state.clickPower;
-  $('pps').textContent = state.passivePerSecond;
-  $('rankLabel').textContent = ranks[state.rank].name;
-  $('rankXP').textContent = `${fmt(state.rankXP)} / ${fmt(ranks[state.rank].xpNeeded)}`;
-  const rankPct = Math.min(100, (state.rankXP / ranks[state.rank].xpNeeded)*100);
-  $('rankBar').style.width = rankPct + '%';
-  
-  // achievements
-  const achContainer = $('achList'); 
-  achContainer.innerHTML = '';
-  achievements.forEach(a=>{
-    const unlocked = !!state.achievements[a.id];
-    const div = document.createElement('div'); 
-    div.className = 'ach' + (unlocked ? ' unlocked' : '');
-    div.textContent = a.name + (unlocked ? ' ✓' : '');
-    achContainer.appendChild(div);
-  });
-  
-  // quest
-  updateQuestUI();
-
-  // skin & avatar previews
-  $('avatarPreview').textContent = getSkinEmoji(state.activeAvatar) || '🩺';
-  
-  // shop list render
-  renderShop();
-  renderSkins();
-  renderAvatars();
-}
-
-function renderShop(){
-  const shop = $('shop'); 
-  shop.innerHTML = '';
-  shopItems.forEach(item=>{
-    const div = document.createElement('div'); 
-    div.className='item';
-    div.innerHTML = `<div class="icon">${item.title.slice(0,2)}</div>
-      <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
-      <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn shop-btn" data-id="${item.id}">Buy</button></div></div>`;
-    shop.appendChild(div);
-  });
-  
-  // Add event listeners after all elements are created
-  setTimeout(() => {
-    shop.querySelectorAll('.shop-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const itemId = this.getAttribute('data-id');
-        buyItem(itemId);
-      });
-    });
-  }, 0);
-}
-
-function renderSkins(){
-  const list = $('skinList'); 
-  list.innerHTML = '';
-  skins.forEach(s=>{
-    const owned = state.purchasedSkins.includes(s.id) || s.free;
-    const btnTxt = (owned ? (state.activeSkin===s.id?'Equipped':'Equip') : `Buy ${s.price} NP`);
-    const el = document.createElement('div'); 
-    el.className='item'; 
-    el.style.minWidth='120px';
-    el.innerHTML = `<div class="icon">${s.emoji}</div>
-      <div class="meta"><div style="font-weight:700">${s.label}</div></div>
-      <div style="text-align:right"><button class="btn skin-btn" data-skin="${s.id}">${btnTxt}</button></div>`;
-    list.appendChild(el);
-  });
-  
-  // Add event listeners after all elements are created
-  setTimeout(() => {
-    list.querySelectorAll('.skin-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const skinId = this.getAttribute('data-skin');
-        buySkin(skinId);
-      });
-    });
-  }, 0);
-}
-
-function renderAvatars(){
-  const list = $('avatarList'); 
-  list.innerHTML = '';
-  avatars.forEach(a=>{
-    const owned = state.purchasedAvatars.includes(a.id) || a.free;
-    const btnTxt = (owned ? (state.activeAvatar===a.id?'Equipped':'Equip') : `Buy ${a.price} NP`);
-    const el = document.createElement('div'); 
-    el.className='item'; 
-    el.style.minWidth='120px';
-    el.innerHTML = `<div class="icon">${a.emoji}</div>
-      <div class="meta"><div style="font-weight:700">${a.label}</div></div>
-      <div style="text-align:right"><button class="btn avatar-btn" data-av="${a.id}">${btnTxt}</button></div>`;
-    list.appendChild(el);
-  });
-  
-  // Add event listeners after all elements are created
-  setTimeout(() => {
-    list.querySelectorAll('.avatar-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const avatarId = this.getAttribute('data-av');
-        buyAvatar(avatarId);
-      });
-    });
-  }, 0);
-}
-
-/* ========== PURCHASE FUNCTIONS ========== */
-function buySkin(skinId) {
-  const skin = skins.find(s => s.id === skinId);
-  if (!skin) return;
-  
-  const owned = state.purchasedSkins.includes(skinId) || skin.free;
-  
-  if (!owned) {
-    if (state.np >= skin.price) {
-      state.np -= skin.price;
-      state.purchasedSkins.push(skinId);
-      state.activeSkin = skinId;
-      saveState();
-      renderAll();
-      updateCursorFromSkin();
-      showToast(`Bought ${skin.label}`);
-    } else {
-      showToast('Not enough NP');
-    }
-  } else {
-    state.activeSkin = skinId;
-    saveState();
-    renderAll();
-    updateCursorFromSkin();
-    showToast(`${skin.label} equipped`);
+  // Format numbers with commas, floors any fraction
+  function fmt(n) {
+    return Math.floor(n).toLocaleString();
   }
-}
 
-function buyAvatar(avatarId) {
-  const avatar = avatars.find(a => a.id === avatarId);
-  if (!avatar) return;
-  
-  const owned = state.purchasedAvatars.includes(avatarId) || avatar.free;
-  
-  if (!owned) {
-    if (state.np >= avatar.price) {
-      state.np -= avatar.price;
-      state.purchasedAvatars.push(avatarId);
-      state.activeAvatar = avatarId;
-      saveState();
-      renderAll();
-      showToast(`Bought ${avatar.label}`);
-    } else {
-      showToast('Not enough NP');
-    }
-  } else {
-    state.activeAvatar = avatarId;
-    saveState();
-    renderAll();
-    showToast(`${avatar.label} equipped`);
+  // Time formatting helper
+  function msToTime(duration) {
+    let seconds = Math.floor((duration / 1000) % 60);
+    let minutes = Math.floor((duration / (1000 * 60)) % 60);
+    let hours = Math.floor(duration / (1000 * 60 * 60));
+    return (hours > 0 ? hours + "h " : "") +
+           (minutes > 0 ? minutes + "m " : "") +
+           (seconds) + "s";
   }
-}
 
-/* ========== INTERACTIONS ========== */
-function doClick(e){
-  // main earning
-  const earned = state.clickPower;
-  state.np += earned;
-  state.clicks += 1;
-  state.rankXP += Math.max(1, Math.floor(earned/2));
-  
-  // Spawn popup at click location
-  const clickArea = $('clickArea');
-  const rect = clickArea.getBoundingClientRect();
-  const x = e.clientX || rect.left + rect.width/2;
-  const y = e.clientY || rect.top + rect.height/2;
-  spawnPop(x, y, `+${earned}`);
-  
-  checkAchievements();
-  saveState(); 
-  renderAll();
-}
+  // Game state
+  const state = {
+    np: 0,
+    passivePerSecond: 0,
+    purchasedUpgrades: [],
+    purchasedSkins: [],
+    purchasedAvatars: [],
+    activeSkin: null,
+    activeAvatar: null,
+    upgrades: [
+      { id: 1, label: 'Double Click NP', price: 100, npPerClick: 2, owned: false },
+      { id: 2, label: 'Auto NP Gain', price: 500, npPerSecond: 1, owned: false }
+    ],
+    skins: [
+      { id: 1, label: 'Classic Monkey', price: 200 },
+      { id: 2, label: 'Golden Monkey', price: 500 }
+    ],
+    avatars: [
+      { id: 1, label: 'Ninja Monkey', price: 300 },
+      { id: 2, label: 'Pirate Monkey', price: 600 }
+    ]
+  };
 
-/* spawn pop text */
-function spawnPop(x,y,text){
-  const clickArea = $('clickArea');
-  const rect = clickArea.getBoundingClientRect();
-  const pop = document.createElement('div'); 
-  pop.className = 'pop'; 
-  pop.textContent = text;
-  // position inside clickArea
-  pop.style.left = (x - rect.left) + 'px';
-  pop.style.top = (y - rect.top) + 'px';
-  clickArea.appendChild(pop);
-  setTimeout(()=>pop.remove(),900);
-}
+  let currentQuest = null; // Quest object
 
-/* ========== SHOP & UPGRADES ========== */
-function buyItem(id){
-  const item = shopItems.find(i=>i.id===id);
-  if(!item) return;
-  if(state.np < item.price) return showToast('Not enough NP');
-  state.np -= item.price;
-  // apply effect (some items can be bought multiple times; but we keep simple)
-  item.apply(state);
-  state.upgrades[id] = (state.upgrades[id] || 0) + 1;
-  saveState(); renderAll(); showToast(`Purchased ${item.title}`);
-  checkRank();
-}
-
-/* ========== ACHIEVEMENTS ========= */
-function checkAchievements(){
-  achievements.forEach(a=>{
-    if(!state.achievements[a.id] && a.condition(state)){
-      state.achievements[a.id] = true;
-      if(a.reward && a.reward.np) state.np += a.reward.np;
-      showToast(`Achievement unlocked: ${a.name}`);
-    }
-  });
-}
-
-/* ========== QUESTS ========== */
-let currentQuest = null; // {target,progress,reward,expires}
-function startQuest(){
-  if(currentQuest) return showToast('Quest in progress');
-  // generate a random quest
-  const qTargets = [10,25,50,120]; // clicks requirement
-  const t = qTargets[Math.floor(Math.random()*qTargets.length)];
-  currentQuest = {target: t, progress:0, reward: Math.max(10, Math.floor(t*2.5)), expires: Date.now() + (1000*60*10)}; // 10 minutes
-  updateQuestUI(); showToast(`Quest started: make ${t} clicks`);
-}
-
-function updateQuestUI(){
-  const completeBtn = $('completeQuestBtn');
-  if(!currentQuest){
-    $('questText').textContent = 'No active quest. Click "Start Quest" to get one.';
-    $('questBar').style.width = '0%';
-    completeBtn.disabled = true;
-    return;
+  // Render all UI parts
+  function renderAll() {
+    renderNP();
+    renderShop();
+    renderSkins();
+    renderAvatars();
+    updateQuestUI();
   }
-  const now = Date.now();
-  const remaining = Math.max(0, currentQuest.expires - now);
-  $('questText').textContent = `Quest: ${currentQuest.progress} / ${currentQuest.target} clicks — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
-  const pct = Math.min(100,(currentQuest.progress/currentQuest.target)*100);
-  $('questBar').style.width = pct + '%';
 
-  if(currentQuest.progress >= currentQuest.target) {
-    completeBtn.disabled = false;
-    $('questText').textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
-  } else if(remaining <= 0){
-    completeBtn.disabled = true;
-    $('questText').textContent = 'Quest expired. Start a new one.';
-  } else {
-    completeBtn.disabled = true;
+  function renderNP() {
+    $('npCount').textContent = fmt(state.np);
   }
-}
 
-function completeQuest(){
-  if(!currentQuest) return showToast('No active quest');
-  if(currentQuest.progress < currentQuest.target) return showToast('Quest not complete yet');
-  state.np += currentQuest.reward;
-  showToast(`Quest reward: +${currentQuest.reward} NP`);
-  currentQuest = null;
-  saveState(); renderAll();
-}
-
-/* hook clicks to quest progress */
-function onGlobalClickForQuest(){
-  if(!currentQuest) return;
-  if(Date.now() > currentQuest.expires){ currentQuest = null; updateQuestUI(); return; }
-  currentQuest.progress += 1;
-  updateQuestUI();
-}
-
-/* ========== RANKING ========== */
-function checkRank(){
-  while(state.rank < ranks.length-1 && state.rankXP >= ranks[state.rank].xpNeeded){
-    state.rankXP -= ranks[state.rank].xpNeeded;
-    state.rank += 1;
-    showToast(`Promoted to ${ranks[state.rank].name}!`);
-  }
-}
-
-/* ========== PASSIVE TICK ========== */
-function tick(){
-  const now = Date.now();
-  const dt = (now - state.lastTick) / 1000;
-  if(dt <= 0) { state.lastTick = now; requestAnimationFrame(tick); return; }
-  // passive NP
-  const gain = state.passivePerSecond * dt;
-  if(gain > 0) state.np += gain;
-  // also apply small bonus from rank maybe
-  state.lastTick = now;
-  // auto save occasionally
-  saveState();
-  renderAll();
-  requestAnimationFrame(tick);
-}
-
-/* ========== MOUSE CURSOR ========== */
-const cursor = $('cursor');
-let mouseX=0, mouseY=0;
-
-function enableCustomCursor() {
-  state.customCursorEnabled = true;
-  document.body.classList.add('custom-cursor-enabled');
-  cursor.classList.add('active');
-  updateCursorFromSkin();
-}
-
-function updateCursorPosition(e) {
-  if (!state.customCursorEnabled) return;
-  mouseX = e.clientX; 
-  mouseY = e.clientY;
-  cursor.style.left = mouseX + 'px'; 
-  cursor.style.top = mouseY + 'px';
-}
-
-function getSkinEmoji(id){
-  const s = skins.find(x=>x.id===id) || avatars.find(x=>x.id===id);
-  return s ? s.emoji : '🩺';
-}
-
-/* update cursor display from active skin */
-function updateCursorFromSkin(){
-  if (cursor) {
-    cursor.textContent = getSkinEmoji(state.activeSkin || 'stethoscope');
-  }
-}
-
-/* ========== SMALL HELPERS ========== */
-function showToast(msg){
-  // temporary small message near top-left
-  const d = document.createElement('div');
-  d.textContent = msg; 
-  d.style.position='fixed'; 
-  d.style.left='18px'; 
-  d.style.top='18px';
-  d.style.padding='10px 12px'; 
-  d.style.borderRadius='10px'; 
-  d.style.background='rgba(0,0,0,0.8)';
-  d.style.color='white'; 
-  d.style.zIndex=99999; 
-  d.style.fontSize='13px';
-  d.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; 
-  d.style.pointerEvents='none';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),2200);
-}
-
-function msToTime(ms){
-  if(ms<=0) return '0:00';
-  const s = Math.floor(ms/1000); const m = Math.floor(s/60); const sec = s%60;
-  return `${m}:${sec.toString().padStart(2,'0')}`;
-}
-
-/* ========== PERSISTENCE ========== */
-function saveState(){
-  try{
-    const copy = {...state};
-    // remove functions if present
-    localStorage.setItem('nursingClickerSave', JSON.stringify(copy));
-  }catch(e){}
-}
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem('nursingClickerSave');
-    if(!raw) return;
-    const parsed = JSON.parse(raw);
-    Object.assign(state, parsed);
-  }catch(e){}
-}
-
-/* ========== INIT ========== */
-function init(){
-  console.log('Initializing game...');
-  
-  loadState();
-  // ensure basic defaults
-  if(!state.purchasedSkins) state.purchasedSkins = [];
-  if(!state.purchasedAvatars) state.purchasedAvatars = [];
-  if(!state.achievements) state.achievements = {};
-  // give free default skin if not present
-  if(!state.purchasedSkins.includes('stethoscope')) state.purchasedSkins.push('stethoscope');
-  if(!state.purchasedAvatars.includes('stethoscope')) state.purchasedAvatars.push('stethoscope');
-  
-  // Setup event listeners
-  setupEventListeners();
-  
-  // Enable custom cursor after a short delay
-  setTimeout(() => {
-    enableCustomCursor();
-  }, 100);
-  
-  renderAll();
-  state.lastTick = Date.now();
-  requestAnimationFrame(tick);
-  
-  console.log('Game initialized successfully');
-}
-
-function setupEventListeners() {
-  // Main click icon
-  const clickIcon = $('clickIcon');
-  if (clickIcon) {
-    clickIcon.addEventListener('click', doClick);
-    clickIcon.addEventListener('touchstart', doClick);
-  }
-  
-  // Quest buttons
-  const startQuestBtn = $('startQuestBtn');
-  const completeQuestBtn = $('completeQuestBtn');
-  if (startQuestBtn) startQuestBtn.addEventListener('click', startQuest);
-  if (completeQuestBtn) completeQuestBtn.addEventListener('click', completeQuest);
-  
-  // Control buttons
-  const resetBtn = $('resetBtn');
-  const exportBtn = $('exportBtn');
-  const importBtn = $('importBtn');
-  
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if(!confirm('Reset all progress?')) return;
-      localStorage.removeItem('nursingClickerSave'); 
-      location.reload();
+  function renderShop() {
+    const shopList = $('shopList');
+    shopList.innerHTML = '';
+    state.upgrades.forEach(upg => {
+      const owned = state.purchasedUpgrades.includes(upg.id);
+      const btn = document.createElement('button');
+      btn.textContent = `${upg.label}: ${fmt(upg.price)} NP${owned ? ' (Owned)' : ''}`;
+      btn.disabled = owned || state.np < upg.price;
+      btn.addEventListener('click', () => buyItem(upg));
+      shopList.appendChild(btn);
     });
   }
-  
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
-      const data = localStorage.getItem('nursingClickerSave') || '{}';
-      navigator.clipboard.writeText(data).then(()=>showToast('Save copied to clipboard'));
+
+  function renderSkins() {
+    const skinList = $('skinList');
+    skinList.innerHTML = '';
+    state.skins.forEach(skin => {
+      const owned = state.purchasedSkins.includes(skin.id);
+      const btn = document.createElement('button');
+      btn.textContent = `${skin.label}: ${fmt(skin.price)} NP${owned ? ' (Owned)' : ''}`;
+      btn.disabled = !owned && state.np < skin.price;
+      btn.addEventListener('click', () => buyOrEquipSkin(skin));
+      skinList.appendChild(btn);
     });
   }
-  
-  if (importBtn) {
-    importBtn.addEventListener('click', () => {
-      const data = prompt('Paste save JSON here:');
-      if(!data) return;
-      try{ 
-        JSON.parse(data); 
-        localStorage.setItem('nursingClickerSave', data); 
-        showToast('Save imported — reloading'); 
-        setTimeout(()=>location.reload(),600) 
+
+  function renderAvatars() {
+    const avatarList = $('avatarList');
+    avatarList.innerHTML = '';
+    state.avatars.forEach(avatar => {
+      const owned = state.purchasedAvatars.includes(avatar.id);
+      const btn = document.createElement('button');
+      btn.textContent = `${avatar.label}: ${fmt(avatar.price)} NP${owned ? ' (Owned)' : ''}`;
+      btn.disabled = !owned && state.np < avatar.price;
+      btn.addEventListener('click', () => buyOrEquipAvatar(avatar));
+      avatarList.appendChild(btn);
+    });
+  }
+
+  function buyItem(upg) {
+    if (!state.purchasedUpgrades.includes(upg.id) && state.np >= upg.price) {
+      state.np -= upg.price;
+      state.purchasedUpgrades.push(upg.id);
+      if (upg.npPerClick) {
+        clickValue = upg.npPerClick; // We'll define clickValue globally later
       }
-      catch(e){ alert('Invalid JSON') }
-    });
+      if (upg.npPerSecond) {
+        state.passivePerSecond += upg.npPerSecond;
+      }
+      saveState();
+      renderAll();
+      showToast(`Bought ${upg.label}`);
+    } else {
+      showToast('Not enough NP or already owned');
+    }
   }
   
-  // Mouse events for cursor
-  document.addEventListener('mousemove', updateCursorPosition);
-  document.addEventListener('mousedown', ()=>{ 
-    if (state.customCursorEnabled) {
-      cursor.classList.add('big'); 
-      setTimeout(()=>cursor.classList.remove('big'),140);
+  function buyOrEquipSkin(skin) {
+    const owned = state.purchasedSkins.includes(skin.id);
+    if(!owned){
+      if(state.np >= skin.price){
+        state.np -= skin.price;
+        state.purchasedSkins.push(skin.id);
+        state.activeSkin = skin.id;
+        saveState();
+        renderAll();
+        showToast(`Bought ${skin.label}`);
+      } else {
+        showToast('Not enough NP');
+      }
+    } else {
+      state.activeSkin = skin.id;
+      saveState();
+      renderAll();
+      showToast(`${skin.label} equipped`);
+    }
+  }
+
+  function buyOrEquipAvatar(avatar) {
+    const owned = state.purchasedAvatars.includes(avatar.id);
+    if(!owned){
+      if(state.np >= avatar.price){
+        state.np -= avatar.price;
+        state.purchasedAvatars.push(avatar.id);
+        state.activeAvatar = avatar.id;
+        saveState();
+        renderAll();
+        showToast(`Bought ${avatar.label}`);
+      } else {
+        showToast('Not enough NP');
+      }
+    } else {
+      state.activeAvatar = avatar.id;
+      saveState();
+      renderAll();
+      showToast(`${avatar.label} equipped`);
+    }
+  }
+
+  // Save/load to localStorage (simple)
+  function saveState() {
+    localStorage.setItem('npclicker_state', JSON.stringify(state));
+  }
+  function loadState() {
+    const s = localStorage.getItem('npclicker_state');
+    if(s){
+      try {
+        const loaded = JSON.parse(s);
+        Object.assign(state, loaded);
+      } catch(e) {
+        console.warn('Failed loading state:', e);
+      }
+    }
+  }
+
+  // Toast - simple alert replacement
+  function showToast(message) {
+    // For simplicity use alert here, or you can implement custom toast.
+    console.log('Toast:', message);
+  }
+
+  // Core clicking
+  let clickValue = 1; // base NP per click, modified by upgrades
+
+  $('clickArea').addEventListener('click', () => {
+    state.np += clickValue;
+    renderAll();
+    onGlobalClickForQuest();
+  });
+
+  // Passive NP generation every second (used by tick)
+  let lastTick = Date.now();
+  function tick(){
+    const now = Date.now();
+    const dt = (now - lastTick) / 1000; // in seconds
+    lastTick = now;
+    // Add passive NP as integer amount to avoid fraction / display issues
+    const gain = Math.floor(state.passivePerSecond * dt);
+    if(gain > 0){
+      state.np += gain;
+      renderNP();
+    }
+  }
+  setInterval(tick, 1000);
+
+  // Custom Cursor
+  const cursor = $('cursor');
+  window.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+
+  // Hide cursor when over interactive elements
+  const interactiveSelectors = [
+    '#shopList button',
+    '#skinList button',
+    '#avatarList button',
+    '#completeQuestBtn',
+    '#clickArea'
+  ];
+
+  // Use one event listener for mouseover and mouseout to handle all selectors
+  document.addEventListener('mouseover', (e) => {
+    if (interactiveSelectors.some(sel => e.target.closest(sel))) {
+      cursor.classList.add('hide-cursor');
     }
   });
-  
-  // Global click hook for quest progress
-  document.addEventListener('click', onGlobalClickForQuest);
-  
-  // Keyboard shortcuts
-  document.addEventListener('keydown',(e)=>{
-    if(e.key===' '){ 
-      e.preventDefault(); 
-      doClick({clientX:mouseX,clientY:mouseY});
-    }
-    if(e.key==='s') { 
-      startQuest(); 
+  document.addEventListener('mouseout', (e) => {
+    if (interactiveSelectors.some(sel => e.target.closest(sel))) {
+      cursor.classList.remove('hide-cursor');
     }
   });
-}
 
-/* give passive reward from achievements if needed each tick */
-setInterval(()=>{
-  // check achievements every 2s
-  checkAchievements();
-  // check rank promotion
-  checkRank();
-  updateCursorFromSkin();
-},2000);
+  // Quest System
+  // For demo let's create a dummy quest that requires 10 clicks within 60 seconds
+  function startQuest() {
+    currentQuest = {
+      progress: 0,
+      target: 10,
+      reward: 100,
+      expires: Date.now() + 60000, // 60 seconds from now
+    };
+    updateQuestUI();
+  }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+  function updateQuestUI() {
+    const questText = $('questText');
+    const completeBtn = $('completeQuestBtn');
+    if (!currentQuest) {
+      questText.textContent = 'No active quest.';
+      completeBtn.disabled = true;
+      completeBtn.classList.remove('active');
+      completeBtn.classList.add('inactive');
+      return;
+    }
+    const now = Date.now();
+    const remaining = currentQuest.expires - now;
+
+    if(currentQuest.progress >= currentQuest.target){
+      completeBtn.disabled = false;
+      completeBtn.classList.remove('inactive');
+      completeBtn.classList.add('active');
+      questText.textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
+    } else if(remaining <= 0){
+      completeBtn.disabled = true;
+      completeBtn.classList.remove('active');
+      completeBtn.classList.add('inactive');
+      questText.textContent = 'Quest expired. Start a new one.';
+      currentQuest = null; // clear expired quest
+    } else {
+      completeBtn.disabled = true;
+      completeBtn.classList.remove('active');
+      completeBtn.classList.add('inactive');
+      questText.textContent = `Quest: ${currentQuest.progress} / ${currentQuest.target} clicks — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
+    }
+  }
+
+  // Quest complete button handler
+  $('completeQuestBtn').addEventListener('click', () => {
+    if(currentQuest && currentQuest.progress >= currentQuest.target){
+      state.np += currentQuest.reward;
+      currentQuest = null;
+      renderAll();
+      showToast('Quest reward claimed!');
+      updateQuestUI();
+    }
+  });
+
+  // Hook global click to count quest progress only on clickArea to prevent unintended clicks
+  function onGlobalClickForQuest(){
+    if(!currentQuest) return;
+    if(Date.now() > currentQuest.expires){
+      currentQuest = null;
+      updateQuestUI();
+      return;
+    }
+    // For simplicity count clicks on clickArea only as quest progress
+    // That means this function should be called only on clicks on clickArea
+    currentQuest.progress += 1;
+    updateQuestUI();
+  }
+
+  // Initialize / load
+  loadState();
+  // If passivePerSecond upgrade is already bought, initialize clickValue properly
+  if(state.purchasedUpgrades.some(id => id === 1)){
+    clickValue = 2;
+  }
+  // Calculate passivePerSecond to be accurate if upgrades bought
+  state.passivePerSecond = 0;
+  state.upgrades.forEach(upg => {
+    if(state.purchasedUpgrades.includes(upg.id) && upg.npPerSecond){
+      state.passivePerSecond += upg.npPerSecond;
+    }
+  });
+
+  renderAll();
+
+  // For demo start a quest automatically
+  startQuest();
 </script>
+
 </body>
 </html>
