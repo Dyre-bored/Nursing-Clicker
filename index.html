@@ -72,7 +72,7 @@
     display:flex;align-items:center;justify-content:center;
     font-size:64px;background:conic-gradient(from 200deg,#34d399,#06b6d4 40%, #60a5fa);
     color:white;box-shadow:0 12px 28px rgba(6,182,212,0.12);transition:transform 160ms ease;
-    user-select:none;
+    user-select:none;cursor:pointer;
   }
   .click-icon:active{transform:scale(0.96)}
   .click-hint{font-size:13px;color:#bfe8f7;margin-top:6px}
@@ -112,21 +112,22 @@
 
   /* footer controls */
   .controls{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;margin-top:10px}
-  .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8}
+  .savebtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:#cfeff8;cursor:pointer}
 
   /* custom cursor element */
   .cursor {
-  position:fixed;
-  pointer-events: none;
-  z-index:99999;
-  transform:translate(-50%,-50%) scale(1);
-  transition:transform 120ms ease, opacity 180ms ease;
-  will-change:transform,opacity;
-  font-size:26px;
-  text-shadow:0 6px 18px rgba(0,0,0,0.45);
-}
-.cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
-.cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
+    position:fixed;
+    pointer-events: none;
+    z-index:99999;
+    transform:translate(-50%,-50%) scale(1);
+    transition:transform 120ms ease, opacity 180ms ease;
+    will-change:transform,opacity;
+    font-size:26px;
+    text-shadow:0 6px 18px rgba(0,0,0,0.45);
+  }
+  .cursor.small{transform:translate(-50%,-50%) scale(0.75);opacity:0.9}
+  .cursor.big{transform:translate(-50%,-50%) scale(1.28);opacity:1}
+  .cursor.hide-cursor{opacity:0}
 
   /* responsive */
   @media (max-width:1020px){
@@ -344,7 +345,11 @@ function renderShop(){
       <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
       <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn" data-id="${item.id}">Buy</button></div></div>`;
     shop.appendChild(div);
-    div.querySelector('button').addEventListener('click', ()=>buyItem(item.id));
+    const btn = div.querySelector('button');
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      buyItem(item.id);
+    });
   });
 }
 
@@ -359,12 +364,25 @@ function renderSkins(){
       <div style="text-align:right"><button class="btn" data-skin="${s.id}">${btnTxt}</button></div>`;
     list.appendChild(el);
     const btn = el.querySelector('button');
-    btn.onclick = ()=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
       if(!owned){
-        if(state.np>=s.price){ state.np -= s.price; state.purchasedSkins.push(s.id); state.activeSkin = s.id; saveState(); renderAll(); showToast(`Bought ${s.label}`) }
+        if(state.np>=s.price){ 
+          state.np -= s.price; 
+          state.purchasedSkins.push(s.id); 
+          state.activeSkin = s.id; 
+          saveState(); 
+          renderAll(); 
+          showToast(`Bought ${s.label}`) 
+        }
         else showToast('Not enough NP');
-      } else { state.activeSkin = s.id; saveState(); renderAll(); showToast(`${s.label} equipped`) }
-    };
+      } else { 
+        state.activeSkin = s.id; 
+        saveState(); 
+        renderAll(); 
+        showToast(`${s.label} equipped`) 
+      }
+    });
   });
 }
 
@@ -379,12 +397,25 @@ function renderAvatars(){
       <div style="text-align:right"><button class="btn" data-av="${a.id}">${btnTxt}</button></div>`;
     list.appendChild(el);
     const btn = el.querySelector('button');
-    btn.onclick = ()=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
       if(!owned){
-        if(state.np>=a.price){ state.np -= a.price; state.purchasedAvatars.push(a.id); state.activeAvatar = a.id; saveState(); renderAll(); showToast(`Bought ${a.label}`) }
+        if(state.np>=a.price){ 
+          state.np -= a.price; 
+          state.purchasedAvatars.push(a.id); 
+          state.activeAvatar = a.id; 
+          saveState(); 
+          renderAll(); 
+          showToast(`Bought ${a.label}`) 
+        }
         else showToast('Not enough NP');
-      } else { state.activeAvatar = a.id; saveState(); renderAll(); showToast(`${a.label} equipped`) }
-    };
+      } else { 
+        state.activeAvatar = a.id; 
+        saveState(); 
+        renderAll(); 
+        showToast(`${a.label} equipped`) 
+      }
+    });
   });
 }
 
@@ -539,7 +570,7 @@ document.addEventListener('mousedown', ()=>{ cursor.classList.add('big'); setTim
 document.addEventListener('mouseup', ()=>{ cursor.classList.remove('big') });
 
 function getSkinEmoji(id){
-  const s = skins.find(x=>x.id===id);
+  const s = skins.find(x=>x.id===id) || avatars.find(x=>x.id===id);
   return s ? s.emoji : '🩺';
 }
 
@@ -547,28 +578,22 @@ function getSkinEmoji(id){
 function updateCursorFromSkin(){
   cursor.textContent = getSkinEmoji(state.activeSkin || 'stethoscope');
 }
-// List of selectors for interactive elements
-const interactiveSelectors = [
-  'button',
-  'a',
-  'input',
-  'select',
-  'textarea',
-  '[role="button"]'
-];
 
-interactiveSelectors.forEach(selector => {
-  document.addEventListener('mouseover', function(e) {
-    if (e.target.closest(selector)) {
-      cursor.classList.add('hide-cursor');
-    }
-  });
-  document.addEventListener('mouseout', function(e) {
-    if (e.target.closest(selector)) {
-      cursor.classList.remove('hide-cursor');
-    }
-  });
+// Handle cursor visibility for interactive elements
+document.addEventListener('mouseover', function(e) {
+  if (e.target.matches('button, a, input, select, textarea, [role="button"]') || 
+      e.target.closest('button, a, input, select, textarea, [role="button"]')) {
+    cursor.classList.add('hide-cursor');
+  }
 });
+
+document.addEventListener('mouseout', function(e) {
+  if (e.target.matches('button, a, input, select, textarea, [role="button"]') || 
+      e.target.closest('button, a, input, select, textarea, [role="button"]')) {
+    cursor.classList.remove('hide-cursor');
+  }
+});
+
 /* ========== SMALL HELPERS ========== */
 function showToast(msg){
   // temporary small message near top-left
@@ -667,9 +692,13 @@ document.addEventListener('keydown',(e)=>{
 
 /* ensure cursor emoji updates when skin/avatars change */
 new MutationObserver(()=>updateCursorFromSkin()).observe(document.getElementById('skinList'), {childList:true, subtree:true});
-document.addEventListener('DOMContentLoaded', function() {
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
   init();
-});
+}
 </script>
 </body>
 </html>
