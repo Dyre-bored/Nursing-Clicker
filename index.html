@@ -402,32 +402,38 @@
 </head>
 <body>
   <div id="gameContainer">
-    <h1 class="nursing-icon">Nursing Clicker Game</h1>
-    <div id="npDisplay">Nursing Points: <span id="npCount">0</span></div>
+    <!-- Left Column: Main Game Area -->
+    <div class="main-content">
+      <h1 class="nursing-icon">Nursing Clicker Game</h1>
+      <div id="npDisplay">Nursing Points: <span id="npCount">0</span></div>
 
-    <div id="clickArea" aria-label="Click Area" role="button" tabindex="0" title="Click to earn nursing points!">
-      👩‍⚕️
+      <div id="clickArea" aria-label="Click Area" role="button" tabindex="0" title="Click to earn nursing points!">
+        👩‍⚕️
+      </div>
+
+      <div class="section" id="questSection">
+        <h2 class="quest-icon">Daily Rounds</h2>
+        <div id="questText">No active rounds.</div>
+        <button class="btn inactive" id="completeQuestBtn" disabled>Complete Rounds</button>
+      </div>
     </div>
 
-    <div class="section" id="shopSection">
-      <h2 class="upgrade-icon">Medical Upgrades</h2>
-      <div id="shopList" class="btn-grid"></div>
-    </div>
+    <!-- Right Column: Shop and Customization -->
+    <div class="sections-grid">
+      <div class="section" id="shopSection">
+        <h2 class="upgrade-icon">Medical Upgrades</h2>
+        <div id="shopList" class="btn-grid"></div>
+      </div>
 
-    <div class="section" id="skinSection">
-      <h2 class="skin-icon">Nursing Uniforms</h2>
-      <div id="skinList" class="btn-grid"></div>
-    </div>
+      <div class="section" id="skinSection">
+        <h2 class="skin-icon">Nursing Uniforms</h2>
+        <div id="skinList" class="btn-grid"></div>
+      </div>
 
-    <div class="section" id="avatarSection">
-      <h2 class="skin-icon">Healthcare Specialists</h2>
-      <div id="avatarList" class="btn-grid"></div>
-    </div>
-
-    <div class="section" id="questSection">
-      <h2 class="quest-icon">Daily Rounds</h2>
-      <div id="questText">No active rounds.</div>
-      <button class="btn inactive" id="completeQuestBtn" disabled>Complete Rounds</button>
+      <div class="section" id="avatarSection">
+        <h2 class="skin-icon">Healthcare Specialists</h2>
+        <div id="avatarList" class="btn-grid"></div>
+      </div>
     </div>
   </div>
 
