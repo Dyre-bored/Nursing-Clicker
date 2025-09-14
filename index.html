@@ -341,7 +341,7 @@ function renderShop(){
       <div class="meta"><div style="font-weight:800">${item.title}</div><div style="font-size:12px;color:#bfe8f7">${item.desc}</div></div>
       <div style="text-align:right"><div class="price">${fmt(item.price)} NP</div><div style="margin-top:6px"><button class="btn" data-id="${item.id}">Buy</button></div></div>`;
     shop.appendChild(div);
-    div.querySelector('button').onclick = ()=>buyItem(item.id);
+    div.querySelector('button').addEventListener('click', ()=>buyItem(item.id));
   });
 }
 
@@ -451,10 +451,13 @@ function startQuest(){
 }
 
 function updateQuestUI(){
-  const panel = $('questPanel');
+  const completeBtn = $('completeQuestBtn');
   if(!currentQuest){
     $('questText').textContent = 'No active quest. Click "Start Quest" to get one.';
     $('questBar').style.width = '0%';
+    completeBtn.disabled = true;
+    completeBtn.style.background = 'rgba(255,255,255,0.04)';
+    completeBtn.style.cursor = "not-allowed";
     return;
   }
   const now = Date.now();
@@ -462,10 +465,21 @@ function updateQuestUI(){
   $('questText').textContent = `Quest: ${currentQuest.progress} / ${currentQuest.target} clicks — reward ${currentQuest.reward} NP — time left: ${msToTime(remaining)}`;
   const pct = Math.min(100,(currentQuest.progress/currentQuest.target)*100);
   $('questBar').style.width = pct + '%';
+
   if(currentQuest.progress >= currentQuest.target) {
+    completeBtn.disabled = false;
+    completeBtn.style.background = 'var(--g1)';
+    completeBtn.style.cursor = "pointer";
     $('questText').textContent = `Quest complete! Click "Complete" to claim ${currentQuest.reward} NP.`;
   } else if(remaining <= 0){
+    completeBtn.disabled = true;
+    completeBtn.style.background = 'rgba(255,255,255,0.04)';
+    completeBtn.style.cursor = "not-allowed";
     $('questText').textContent = 'Quest expired. Start a new one.';
+  } else {
+    completeBtn.disabled = true;
+    completeBtn.style.background = 'rgba(255,255,255,0.04)';
+    completeBtn.style.cursor = "not-allowed";
   }
 }
 
