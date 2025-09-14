@@ -646,8 +646,9 @@ document.addEventListener('keydown',(e)=>{
 
 /* ensure cursor emoji updates when skin/avatars change */
 new MutationObserver(()=>updateCursorFromSkin()).observe(document.getElementById('skinList'), {childList:true, subtree:true});
-
-init();
+document.addEventListener('DOMContentLoaded', function() {
+  init();
+});
 </script>
 </body>
 </html>
